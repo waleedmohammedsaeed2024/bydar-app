@@ -17,6 +17,39 @@ expo-env.d.ts
 *.p12
 *.key
 *.mobileprovision
+*.keystore
+keystore.properties
+*.pfx
+*.cer
+*.der
+
+# Firebase / Google services (often contain API keys & service accounts)
+google-services.json
+GoogleService-Info.plist
+serviceAccountKey*.json
+firebase-debug.log
+
+# Expo / EAS credentials
+.expo-shared/
+credentials.json
+.easignore.local
+
+# Generic secrets
+secrets.json
+*.secret
+*.secrets
+.sentryclirc
+auth.json
+
+# SSH / GPG (never commit private keys)
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+*.pub
+known_hosts
+*.gpg
+*.asc
 
 # Metro
 .metro-health-check*
@@ -30,8 +63,15 @@ yarn-error.*
 .DS_Store
 *.pem
 
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
 # local env files
-.env*.local
+.env
+.env.*
+!.env.example
 
 # typescript
 *.tsbuildinfo
@@ -39,3 +79,28 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# editors / tooling
+.vscode/
+.idea/
+*.swp
+*.swo
+.history/
+
+# AI / agent tooling (local-only state, may contain API tokens)
+.claude/
+.agents/
+.qodo/
+
+# logs
+*.log
+logs/
+
+# test / coverage
+coverage/
+.nyc_output/
+
+# project-local
+mobile-plan.md
+skills-lock.json
+CLAUDE.md

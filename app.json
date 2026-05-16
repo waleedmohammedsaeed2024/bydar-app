@@ -30,10 +30,22 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-secure-store",
+      "expo-audio",
+      [
+        "expo-notifications",
+        {
+          "color": "#1d3f2a"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "supabaseUrl": "https://avuedapgjitwnimkrjlp.supabase.co",
+      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2dWVkYXBnaml0d25pbWtyamxwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwOTM4MTgsImV4cCI6MjA4NDY2OTgxOH0.l7tm4FmA2LFO8npZdPOHO5P1TXN1ExEjHz5MnN44GSU"
     }
   }
 }
