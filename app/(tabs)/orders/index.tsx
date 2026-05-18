@@ -13,13 +13,21 @@ import { useSalesOrders } from '@/features/sales/sales.hooks';
 import type { OrderStatus } from '@/lib/database.types';
 import { STATUS_FILTERS } from '@/lib/utils';
 
+function todayLocal(): string {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 export default function OrdersTab() {
   const router = useRouter();
   const params = useLocalSearchParams<{ date?: string }>();
   const [status, setStatus] = useState<OrderStatus | 'all'>('all');
   const [search, setSearch] = useState('');
-  const [date, setDate] = useState<string | undefined>(params.date);
-  useEffect(() => { setDate(params.date); }, [params.date]);
+  const [date, setDate] = useState<string | undefined>(params.date ?? todayLocal());
+  useEffect(() => { if (params.date) setDate(params.date); }, [params.date]);
 
   const orders = useSalesOrders({ status, search, date });
 
@@ -28,11 +36,16 @@ export default function OrdersTab() {
       <OfflineBanner />
       <View style={styles.header}>
         <Text style={styles.title}>طلبات المبيعات</Text>
-        {date && (
+        {date ? (
           <Pressable style={styles.dateChip} onPress={() => setDate(undefined)}>
             <Ionicons name="calendar-outline" size={12} color="#fff" />
             <Text style={styles.dateChipTxt}>طلبات اليوم</Text>
             <Ionicons name="close" size={12} color="#fff" />
+          </Pressable>
+        ) : (
+          <Pressable style={styles.dateChipOff} onPress={() => setDate(todayLocal())}>
+            <Ionicons name="calendar-outline" size={12} color={Palette.greenDk} />
+            <Text style={styles.dateChipOffTxt}>اليوم</Text>
           </Pressable>
         )}
       </View>
@@ -104,6 +117,12 @@ const styles = StyleSheet.create({
     backgroundColor: Palette.greenDk, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999,
   },
   dateChipTxt: { color: '#fff', fontSize: 11, fontFamily: Fonts.arabicBold },
+  dateChipOff: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: 'rgba(255,255,255,0.7)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999,
+    borderWidth: 1, borderColor: Palette.line,
+  },
+  dateChipOffTxt: { color: Palette.greenDk, fontSize: 11, fontFamily: Fonts.arabicBold },
   searchWrap: { paddingHorizontal: 22, paddingTop: 12 },
   search: {
     flexDirection: 'row', alignItems: 'center', gap: 8,

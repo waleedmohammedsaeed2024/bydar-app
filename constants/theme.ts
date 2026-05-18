@@ -21,8 +21,7 @@ export const Fonts = {
   arabicBold: 'NotoSansArabic_700Bold',
 };
 
-export const arDigits = (s: string | number): string =>
-  String(s).replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[+d]);
+export const arDigits = (s: string | number): string => String(s);
 
 export const arMonths = [
   'يناير','فبراير','مارس','أبريل','مايو','يونيو',

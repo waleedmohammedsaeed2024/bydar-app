@@ -21,7 +21,7 @@ type Option = {
 type InboxMsg = { id: number; from: string; subject: string; time: string; unread: boolean };
 
 const INBOX: InboxMsg[] = [
-  { id: 1, from: 'مؤسسة النخيل', subject: 'تحديث الأسعار للموسم الجديد', time: 'قبل ١٠ د', unread: true },
+  { id: 1, from: 'مؤسسة النخيل', subject: 'تحديث الأسعار للموسم الجديد', time: 'قبل 10 د', unread: true },
   { id: 2, from: 'مزارع الشمال', subject: 'تأكيد شحنة الأسبوع القادم', time: 'قبل ساعة', unread: true },
   { id: 3, from: 'متاجر السنبلة', subject: 'طلب عرض أسعار جديد', time: 'أمس', unread: false },
   { id: 4, from: 'إدارة المخزون', subject: 'تنبيه: انخفاض المخزون', time: 'قبل يومين', unread: false },

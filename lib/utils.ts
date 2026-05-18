@@ -52,7 +52,7 @@ export function shortOrderId(id: string): string {
   return `#${id.slice(0, 6)}`;
 }
 
-export function formatCurrency(n: number, locale = 'ar-SA', currency = 'SAR'): string {
+export function formatCurrency(n: number, locale = 'ar-SA-u-nu-latn', currency = 'SAR'): string {
   try {
     return new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 2 })
       .format(n);
@@ -61,7 +61,7 @@ export function formatCurrency(n: number, locale = 'ar-SA', currency = 'SAR'): s
   }
 }
 
-export function formatDate(iso: string, locale = 'ar-SA'): string {
+export function formatDate(iso: string, locale = 'ar-SA-u-nu-latn'): string {
   const d = new Date(iso);
   try {
     return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(d);
