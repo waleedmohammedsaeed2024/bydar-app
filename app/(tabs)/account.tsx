@@ -66,11 +66,12 @@ function ChangePasswordSheet({ visible, onClose }: { visible: boolean; onClose: 
   const [confirm, setConfirm] = useState('');
   const [showCur, setShowCur] = useState(false);
   const [showNxt, setShowNxt] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const reset = () => {
     setCurrent(''); setNext(''); setConfirm('');
-    setShowCur(false); setShowNxt(false);
+    setShowCur(false); setShowNxt(false); setShowConfirm(false);
   };
 
   const close = () => { reset(); onClose(); };
@@ -134,8 +135,8 @@ function ChangePasswordSheet({ visible, onClose }: { visible: boolean; onClose: 
               label="تأكيد كلمة المرور الجديدة"
               value={confirm}
               onChange={setConfirm}
-              visible={showNxt}
-              toggle={() => setShowNxt((v) => !v)}
+              visible={showConfirm}
+              toggle={() => setShowConfirm((v) => !v)}
               placeholder="أعد كتابة الكلمة الجديدة"
             />
           </View>
