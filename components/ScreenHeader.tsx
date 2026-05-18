@@ -9,11 +9,13 @@ export function ScreenHeader({
   title,
   trailing,
   onBack,
+  onTrailingPress,
 }: {
   eyebrow: string;
   title: string;
   trailing?: 'share' | 'filter' | 'none';
   onBack?: () => void;
+  onTrailingPress?: () => void;
 }) {
   const router = useRouter();
   const back = onBack ?? (() => router.back());
@@ -28,11 +30,11 @@ export function ScreenHeader({
         <Text style={styles.title}>{title}</Text>
       </View>
       {trailing === 'share' ? (
-        <Pressable style={styles.iconBtn} hitSlop={8}>
+        <Pressable style={styles.iconBtn} hitSlop={8} onPress={onTrailingPress}>
           <Ionicons name="share-outline" size={18} color={Palette.ink} />
         </Pressable>
       ) : trailing === 'filter' ? (
-        <Pressable style={styles.iconBtn} hitSlop={8}>
+        <Pressable style={styles.iconBtn} hitSlop={8} onPress={onTrailingPress}>
           <Ionicons name="options-outline" size={18} color={Palette.ink} />
         </Pressable>
       ) : (

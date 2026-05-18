@@ -112,7 +112,7 @@ export default function OrderDetailScreen() {
 
   return (
     <Screen>
-      <ScreenHeader eyebrow="طلب مبيعات" title={`#${o.id.slice(0, 6)}`} trailing="share" onBack={undefined} />
+      <ScreenHeader eyebrow="طلب مبيعات" title={`#${o.id.slice(0, 6)}`} trailing="share" onBack={undefined} onTrailingPress={onShare} />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.card}>
