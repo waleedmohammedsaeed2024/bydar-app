@@ -330,13 +330,13 @@ const ns = StyleSheet.create({
   logoWrap: {
     width: 56,
     height: 56,
-    borderRadius: "50%",
+    borderRadius: 28,
     overflow: "hidden",
     backgroundColor: "transparent",
     borderWidth: 1,
     borderColor: "rgba(31,51,38,0.10)",
   },
-  logoImg: { width: "100%", height: "100%", borderRadius: "50%" },
+  logoImg: { width: "100%", height: "100%" },
   body: { gap: 6, alignItems: "flex-end" },
   title: {
     fontSize: 17,
