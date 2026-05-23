@@ -3,6 +3,7 @@ import { Redirect, Tabs } from "expo-router";
 import { Platform, Text } from "react-native";
 
 import { Fonts, Palette } from "@/constants/theme";
+import { usePermissions } from "@/hooks/usePermissions";
 import { useAuthStore } from "@/stores/auth";
 
 type IconName = keyof typeof Ionicons.glyphMap;
@@ -32,6 +33,7 @@ function tabLabel(text: string) {
 export default function TabLayout() {
   const session = useAuthStore((s) => s.session);
   const initialized = useAuthStore((s) => s.initialized);
+  const { can } = usePermissions();
 
   if (!initialized) return null;
   if (!session) return <Redirect href="/login" />;
@@ -88,6 +90,7 @@ export default function TabLayout() {
           title: "المشتريات",
           tabBarIcon: tabIcon("cart-outline"),
           tabBarLabel: tabLabel("المشتريات"),
+          href: can('read_purchases') ? undefined : null,
         }}
       />
       <Tabs.Screen

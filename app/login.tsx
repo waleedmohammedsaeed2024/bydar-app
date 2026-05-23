@@ -96,6 +96,11 @@ export default function LoginScreen() {
           <Text style={styles.footerTxt}>ليس لديك حساب؟ </Text>
           <Pressable><Text style={styles.footerLink}>تواصل مع المسؤول</Text></Pressable>
         </View>
+
+        <View style={styles.credit}>
+          <Text style={styles.creditTxt}>Developed by Waleed Mohammed Saeed</Text>
+          <Text style={styles.creditTxt}>© 2026 — All Rights Reserved.</Text>
+        </View>
       </View>
     </Screen>
   );
@@ -135,4 +140,14 @@ const styles = StyleSheet.create({
   footer: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
   footerTxt: { fontSize: 12, color: Palette.inkSoft, fontFamily: Fonts.arabic },
   footerLink: { fontSize: 12, color: Palette.green, fontFamily: Fonts.arabicBold },
+  credit: {
+    alignSelf: 'center',
+    alignItems: 'center',
+    gap: 2,
+    backgroundColor: Palette.cardA,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 999,
+  },
+  creditTxt: { fontSize: 11, color: Palette.greenDk, fontFamily: Fonts.arabicMedium },
 });

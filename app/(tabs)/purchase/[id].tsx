@@ -1,12 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
-import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Fonts, Palette, arDigits, arMonths } from '@/constants/theme';
-import { usePurchaseInvoice } from '@/features/purchases/purchases.hooks';
+import {
+  useDeletePILine,
+  usePurchaseInvoice,
+  useUpdatePILineQty,
+} from '@/features/purchases/purchases.hooks';
+import { usePermissions } from '@/hooks/usePermissions';
 import type { PurchaseInvoiceItem } from '@/lib/database.types';
 import { formatCurrency } from '@/lib/utils';
 
@@ -23,7 +28,25 @@ function lineTotal(l: PurchaseInvoiceItem): number {
 
 export default function PurchaseDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const purchase = usePurchaseInvoice(id ? String(id) : undefined);
+  const invoiceId = id ? String(id) : '';
+  const purchase = usePurchaseInvoice(invoiceId || undefined);
+  const { can } = usePermissions();
+  const updateQty = useUpdatePILineQty(invoiceId);
+  const removeLine = useDeletePILine(invoiceId);
+
+  const editable = can('update_purchases');
+
+  const onChangeQty = (lineId: string, next: number) => {
+    if (next < 1) return;
+    updateQty.mutate({ lineId, quantity: next });
+  };
+
+  const onRemove = (lineId: string) => {
+    Alert.alert('حذف الصنف', 'هل تريد حذف هذا الصنف من الفاتورة؟', [
+      { text: 'تراجع', style: 'cancel' },
+      { text: 'حذف', style: 'destructive', onPress: () => removeLine.mutate(lineId) },
+    ]);
+  };
 
   const { lines, total } = useMemo(() => {
     const all = purchase.data?.purchase_invoice_item ?? [];
@@ -116,8 +139,30 @@ export default function PurchaseDetailScreen() {
                   {l.description && (
                     <Text style={styles.lineDesc} numberOfLines={2}>{l.description}</Text>
                   )}
+                  {editable && (
+                    <View style={styles.qtyRow}>
+                      <Pressable
+                        style={styles.qtyBtn}
+                        onPress={() => onChangeQty(l.id, Number(l.quantity) - 1)}>
+                        <Text style={styles.qtyBtnTxt}>−</Text>
+                      </Pressable>
+                      <Text style={styles.qtyVal}>{arDigits(Number(l.quantity))}</Text>
+                      <Pressable
+                        style={[styles.qtyBtn, styles.qtyBtnPlus]}
+                        onPress={() => onChangeQty(l.id, Number(l.quantity) + 1)}>
+                        <Text style={styles.qtyBtnPlusTxt}>＋</Text>
+                      </Pressable>
+                    </View>
+                  )}
                 </View>
-                <Text style={styles.lineTotal}>{formatCurrency(lineTotal(l))}</Text>
+                <View style={{ alignItems: 'flex-end', gap: 6 }}>
+                  <Text style={styles.lineTotal}>{formatCurrency(lineTotal(l))}</Text>
+                  {editable && (
+                    <Pressable style={styles.removeBtn} hitSlop={8} onPress={() => onRemove(l.id)}>
+                      <Ionicons name="trash-outline" size={16} color="#8a3e3e" />
+                    </Pressable>
+                  )}
+                </View>
               </View>
             ))}
             <View style={styles.totalRow}>
@@ -190,6 +235,16 @@ const styles = StyleSheet.create({
   lineMeta: { fontSize: 11, color: Palette.inkSoft, fontFamily: Fonts.arabicMedium },
   lineDesc: { fontSize: 11, color: Palette.inkSoft, fontFamily: Fonts.arabic, marginTop: 4 },
   lineTotal: { fontSize: 13, color: Palette.greenDk, fontFamily: Fonts.arabicBold, marginTop: 10 },
+  qtyRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 },
+  qtyBtn: {
+    width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(31,51,38,0.06)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  qtyBtnPlus: { backgroundColor: Palette.greenDk },
+  qtyBtnTxt: { fontSize: 16, color: Palette.ink, fontFamily: Fonts.arabicBold, lineHeight: 18 },
+  qtyBtnPlusTxt: { fontSize: 14, color: '#fff', fontFamily: Fonts.arabicBold, lineHeight: 16 },
+  qtyVal: { minWidth: 28, textAlign: 'center', fontSize: 13, color: Palette.ink, fontFamily: Fonts.arabicBold },
+  removeBtn: { padding: 4 },
 
   totalRow: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',

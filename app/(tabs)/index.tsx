@@ -23,6 +23,7 @@ import {
 } from "@/constants/theme";
 import { OrderRow } from "@/features/sales/components/OrderRow";
 import { useSalesOrders } from "@/features/sales/sales.hooks";
+import { usePermissions } from "@/hooks/usePermissions";
 import { useAuthStore } from "@/stores/auth";
 import { useNotificationsStore } from "@/stores/notifications";
 
@@ -372,35 +373,49 @@ const ns = StyleSheet.create({
 
 function QuickActions({ onReviews }: { onReviews: () => void }) {
   const router = useRouter();
-  const items: {
+  const { can } = usePermissions();
+
+  const allItems: {
     label: string;
     icon: keyof typeof Ionicons.glyphMap;
     onPress: () => void;
+    visible: boolean;
   }[] = [
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     {
       label: "العملاء",
       icon: "people-outline",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onPress: () => router.push("/customers" as any),
+      visible: can("read_customers"),
     },
     {
       label: "المنتجات",
       icon: "cube-outline",
       onPress: () => router.push("/products"),
+      visible: can("read_items"),
     },
-    { label: "مراجعات", icon: "star-outline", onPress: onReviews },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    {
+      label: "مراجعات",
+      icon: "star-outline",
+      onPress: onReviews,
+      visible: can("view_reviews"),
+    },
     {
       label: "المخزون",
       icon: "file-tray-stacked-outline",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onPress: () => router.push("/stock" as any),
+      visible: can("view_stock"),
     },
     {
       label: "التقارير",
       icon: "bar-chart-outline",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onPress: () => router.push("/reports" as any),
+      visible: can("view_reports"),
     },
   ];
+  const items = allItems.filter((i) => i.visible);
   return (
     <ScrollView
       horizontal
@@ -564,16 +579,33 @@ const ro = StyleSheet.create({
 });
 
 export default function HomeScreen() {
+  const router = useRouter();
   const [selected, setSelected] = useState<Date>(TODAY);
   const [showReviews, setShowReviews] = useState(false);
+  const role = useAuthStore(
+    (s) => s.user?.app_metadata?.role as string | undefined,
+  );
+  const isManagerOrAdmin =
+    role === "manager" || role === "admin" || role === "accountant";
+  const { can } = usePermissions();
+
+  const handleReviews = () => {
+    if (isManagerOrAdmin) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      router.push("/managers-review" as any);
+    } else {
+      setShowReviews(true);
+    }
+  };
+
   return (
     <Screen>
       <OfflineBanner />
       <ScrollView showsVerticalScrollIndicator={false}>
         <Header />
         <HorizontalCalendar selected={selected} onSelect={setSelected} />
-        <NewOrderCard />
-        <QuickActions onReviews={() => setShowReviews(true)} />
+        {can("create_order") && <NewOrderCard />}
+        <QuickActions onReviews={handleReviews} />
         <RecentOrders date={selected} />
       </ScrollView>
       <ReviewsModal

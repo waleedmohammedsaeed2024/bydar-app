@@ -10,6 +10,7 @@ import { Screen } from '@/components/Screen';
 import { Fonts, Palette } from '@/constants/theme';
 import { OrderRow } from '@/features/sales/components/OrderRow';
 import { useSalesOrders } from '@/features/sales/sales.hooks';
+import { usePermissions } from '@/hooks/usePermissions';
 import type { OrderStatus } from '@/lib/database.types';
 import { STATUS_FILTERS } from '@/lib/utils';
 
@@ -30,6 +31,7 @@ export default function OrdersTab() {
   useEffect(() => { if (params.date) setDate(params.date); }, [params.date]);
 
   const orders = useSalesOrders({ status, search, date });
+  const { can } = usePermissions();
 
   return (
     <Screen>
@@ -102,9 +104,11 @@ export default function OrdersTab() {
         )}
       </ScrollView>
 
-      <Pressable style={styles.fab} onPress={() => router.push('/orders/new')}>
-        <Ionicons name="add" size={26} color="#fff" />
-      </Pressable>
+      {can('create_order') && (
+        <Pressable style={styles.fab} onPress={() => router.push('/orders/new')}>
+          <Ionicons name="add" size={26} color="#fff" />
+        </Pressable>
+      )}
     </Screen>
   );
 }

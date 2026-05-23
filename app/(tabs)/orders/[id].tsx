@@ -16,12 +16,15 @@ import {
   useSalesOrder,
   useUpdateLineQty,
 } from '@/features/sales/sales.hooks';
-import { printOrCloseOrderPDF } from '@/lib/pdf';
+import { usePermissions } from '@/hooks/usePermissions';
+import { printOrCloseOrderPDF, printOrShareDeliveryNotePDF } from '@/lib/pdf';
 import { formatDate } from '@/lib/utils';
 
 export default function OrderDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const orderId = String(id);
+  const { isAdmin, isCustomer, isSalesman, isPurchase } = usePermissions();
+
   const order = useSalesOrder(orderId);
 
   const cancel = useCancelOrder();
@@ -36,7 +39,8 @@ export default function OrderDetailScreen() {
       .map((l) => l.item!.id))),
     [order.data],
   );
-  const stocks = useItemStocks(itemIds);
+  // Customers must not see stock levels — pass empty ids so the query is skipped.
+  const stocks = useItemStocks(isCustomer ? [] : itemIds);
   const stockByKey = useMemo(() => {
     const map = new Map<string, number>();
     for (const s of stocks.data ?? []) {
@@ -66,7 +70,8 @@ export default function OrderDetailScreen() {
 
   const o = order.data;
   const lines = (o.sales_order_item ?? []).filter((l) => !l.deleted_at);
-  const editable = o.status === 'o';
+  // Only purchase and admin can edit order contents.
+  const editable = o.status === 'o' && (isAdmin || isPurchase);
   const phone = o.customer?.phone_no ?? o.client?.phone_no;
 
   const onCancel = () => {
@@ -79,9 +84,17 @@ export default function OrderDetailScreen() {
     ]);
   };
 
-  const hasShortage = lines.some((l) => {
+  // Treat "stock data has loaded but no row exists for this (item, packaging)"
+  // as 0 stock — that's a real shortage, not unknown availability.
+  const stocksLoaded = !isCustomer && !stocks.isLoading;
+  const availFor = (l: { item?: { id: string } | null; packaging_id: string | null; }) => {
     const key = `${l.item?.id ?? ''}|${l.packaging_id ?? ''}`;
-    const avail = stockByKey.get(key);
+    const v = stockByKey.get(key);
+    if (v !== undefined) return v;
+    return stocksLoaded ? 0 : undefined;
+  };
+  const hasShortage = lines.some((l) => {
+    const avail = availFor(l);
     return avail !== undefined && avail < l.quantity;
   });
 
@@ -99,7 +112,13 @@ export default function OrderDetailScreen() {
 
   const onChangeQty = (lineId: string, next: number) => {
     if (next < 1) return;
-    updateQty.mutate({ lineId, quantity: next });
+    updateQty.mutate(
+      { lineId, quantity: next },
+      {
+        onError: (e) =>
+          Alert.alert('تعذر تحديث الكمية', e instanceof Error ? e.message : 'خطأ غير معروف'),
+      },
+    );
   };
 
   const onShare = async () => {
@@ -110,9 +129,17 @@ export default function OrderDetailScreen() {
     }
   };
 
+  const onDeliveryNote = async () => {
+    try {
+      await printOrShareDeliveryNotePDF(o);
+    } catch (e) {
+      Alert.alert('تعذر إنشاء إذن التسليم', e instanceof Error ? e.message : 'خطأ غير معروف');
+    }
+  };
+
   return (
     <Screen>
-      <ScreenHeader eyebrow="طلب مبيعات" title={`#${o.id.slice(0, 6)}`} trailing="share" onBack={undefined} onTrailingPress={onShare} />
+      <ScreenHeader eyebrow="طلب مبيعات" title={`#${o.id.slice(0, 6)}`} trailing={isCustomer ? undefined : 'share'} onBack={undefined} onTrailingPress={isCustomer ? undefined : onShare} />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.card}>
@@ -130,7 +157,7 @@ export default function OrderDetailScreen() {
           {phone && (
             <Pressable
               style={styles.phoneBtn}
-              onPress={() => Linking.openURL(`tel:${phone}`)}>
+              onPress={() => Linking.openURL('tel:00966502802984')}>
               <Ionicons name="call-outline" size={14} color="#fff" />
               <Text style={styles.phoneTxt}>اتصال — {phone}</Text>
             </Pressable>
@@ -143,22 +170,21 @@ export default function OrderDetailScreen() {
             <Text style={styles.empty}>لا توجد أصناف</Text>
           ) : (
             lines.map((l, i) => {
-              const key = `${l.item?.id ?? ''}|${l.packaging_id ?? ''}`;
-              const avail = stockByKey.get(key);
+              const avail = availFor(l);
               const short = avail !== undefined && avail < l.quantity;
               return (
               <View
                 key={l.id}
                 style={[
                   styles.line, i > 0 && styles.lineDivider,
-                  short && styles.lineShort,
+                  short && !isCustomer && styles.lineShort,
                 ]}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.itemName}>{l.item?.item_name ?? '—'}</Text>
                   <Text style={styles.itemMeta}>
                     {l.quantity}× {l.packaging?.pack_arab ?? ''}
                   </Text>
-                  {short && (
+                  {short && !isCustomer && (
                     <Text style={styles.shortTxt}>
                       المتوفر {avail} فقط
                     </Text>
@@ -199,18 +225,24 @@ export default function OrderDetailScreen() {
         </View>
 
         <View style={styles.actions}>
-          <Pressable style={[styles.action, styles.actionMuted]} onPress={onShare}>
-            <Ionicons name="share-outline" size={16} color={Palette.ink} />
-            <Text style={styles.actionMutedTxt}>طباعة / مشاركة</Text>
+          <Pressable style={[styles.action, styles.actionMuted]} onPress={onShare} disabled>
+            <Ionicons name="share-outline" size={16} color={Palette.inkSoft} />
+            <Text style={[styles.actionMutedTxt, { color: Palette.inkSoft }]}>طباعة / مشاركة</Text>
           </Pressable>
+          {(isAdmin || isSalesman) && (
+            <Pressable style={[styles.action, styles.actionMuted]} onPress={onDeliveryNote}>
+              <Ionicons name="document-text-outline" size={16} color={Palette.ink} />
+              <Text style={styles.actionMutedTxt}>إذن التسليم</Text>
+            </Pressable>
+          )}
 
-          {o.status === 'o' && (
+          {o.status === 'o' && (isAdmin || isPurchase) && (
             <Pressable style={[styles.action, styles.actionDanger]} onPress={onCancel}>
               <Ionicons name="close-circle-outline" size={16} color="#fff" />
               <Text style={styles.actionPrimaryTxt}>إلغاء الطلب</Text>
             </Pressable>
           )}
-          {o.status === 'o' && (
+          {o.status === 'o' && (isAdmin || isPurchase) && (
             <Pressable
               disabled={hasShortage || ship.isPending}
               style={[
@@ -224,7 +256,7 @@ export default function OrderDetailScreen() {
               </Text>
             </Pressable>
           )}
-          {o.status === 'p' && (
+          {o.status === 'p' && (isAdmin || isCustomer) && (
             <Pressable style={[styles.action, styles.actionPrimary]} onPress={onDeliver}>
               <Ionicons name="checkmark-done-outline" size={16} color="#fff" />
               <Text style={styles.actionPrimaryTxt}>تأكيد التسليم</Text>
@@ -255,7 +287,7 @@ const styles = StyleSheet.create({
   line: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10 },
   lineDivider: { borderTopWidth: 1, borderTopColor: Palette.line },
   lineShort: {
-    backgroundColor: '#FFE7C7', // light orange alert
+    backgroundColor: '#FFF7C2', // light yellow — ordered qty exceeds stock
     marginHorizontal: -8, paddingHorizontal: 8, borderRadius: 10,
   },
   shortTxt: { fontSize: 11, color: '#8a4f0d', fontFamily: Fonts.arabicBold, marginTop: 2 },
@@ -282,6 +314,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14, borderRadius: 16,
   },
   actionMuted: { backgroundColor: 'rgba(255,255,255,0.85)' },
+  actionDisabled: { opacity: 0.45 },
   actionMutedTxt: { color: Palette.ink, fontSize: 14, fontFamily: Fonts.arabicBold },
   actionPrimary: { backgroundColor: Palette.greenDk },
   actionDanger: { backgroundColor: '#8a3e3e' },

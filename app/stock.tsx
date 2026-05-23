@@ -2,11 +2,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { AccessDenied } from '@/components/AccessDenied';
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Fonts, Palette, arDigits } from '@/constants/theme';
 import { useItems, useItemStocks } from '@/features/items/items.hooks';
+import { usePermissions } from '@/hooks/usePermissions';
 import type { InventoryItem, Packaging } from '@/lib/database.types';
 import { itemPackagings } from '@/lib/utils';
 
@@ -36,7 +38,10 @@ function PackBadge({ label, qty }: { label: string; qty: number }) {
 }
 
 export default function StockScreen() {
+  const { can } = usePermissions();
   const [q, setQ] = useState('');
+
+  if (!can('view_stock')) return <AccessDenied />;
   const items = useItems(q || undefined);
   const list = items.data ?? [];
 

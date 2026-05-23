@@ -4,6 +4,9 @@ import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 
 
 import { BottomSheet } from '@/components/BottomSheet';
 import { Fonts, Palette, arDigits } from '@/constants/theme';
+import { supabase } from '@/lib/supabase';
+import { CLIENT_ID } from '@/lib/tenant';
+import { useAuthStore } from '@/stores/auth';
 
 type OptionKey = 'remarks' | 'survey' | 'evaluation' | 'inbox';
 
@@ -39,12 +42,27 @@ const OPTIONS: Option[] = [
 const RATE_LABELS = ['ممتاز', 'جيد جدًا', 'جيد', 'مقبول', 'ضعيف'];
 
 function Remarks() {
+  const userId = useAuthStore((s) => s.user?.id);
   const [text, setText] = useState('');
-  const send = () => {
-    if (!text.trim()) return;
-    Alert.alert('تم إرسال الملاحظة', text);
-    setText('');
+  const [saving, setSaving] = useState(false);
+
+  const send = async () => {
+    if (!text.trim() || !userId) return;
+    setSaving(true);
+    const { error } = await supabase.from('customer_note').insert({
+      customer_id: userId,
+      client_id: CLIENT_ID,
+      note_text: text.trim(),
+    });
+    setSaving(false);
+    if (error) {
+      Alert.alert('خطأ', 'تعذّر إرسال الملاحظة، حاول مجدداً');
+    } else {
+      Alert.alert('تم الإرسال', 'شكراً على ملاحظتك');
+      setText('');
+    }
   };
+
   return (
     <View style={{ paddingHorizontal: 14, paddingBottom: 16 }}>
       <View style={rs.box}>
@@ -58,8 +76,8 @@ function Remarks() {
         />
         <Pressable
           onPress={send}
-          disabled={!text.trim()}
-          style={[rs.send, !text.trim() && rs.sendDisabled]}>
+          disabled={!text.trim() || saving}
+          style={[rs.send, (!text.trim() || saving) && rs.sendDisabled]}>
           <Ionicons name="send" size={14} color="#fff" />
         </Pressable>
       </View>
@@ -112,7 +130,26 @@ const ss = StyleSheet.create({
 });
 
 function Evaluation() {
+  const userId = useAuthStore((s) => s.user?.id);
   const [stars, setStars] = useState(0);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const submit = async () => {
+    if (!stars || !userId) return;
+    setSaving(true);
+    const { error } = await supabase.from('customer_evaluation').upsert(
+      { customer_id: userId, client_id: CLIENT_ID, rating: stars, updated_at: new Date().toISOString() },
+      { onConflict: 'customer_id' },
+    );
+    setSaving(false);
+    if (error) {
+      Alert.alert('خطأ', 'تعذّر حفظ التقييم، حاول مجدداً');
+    } else {
+      setSaved(true);
+    }
+  };
+
   return (
     <View style={{ paddingHorizontal: 14, paddingBottom: 16 }}>
       <View style={es.card}>
@@ -121,7 +158,7 @@ function Evaluation() {
           {[5, 4, 3, 2, 1].map((i) => {
             const filled = i <= stars;
             return (
-              <Pressable key={i} style={es.starBtn} onPress={() => setStars(i)}>
+              <Pressable key={i} style={es.starBtn} onPress={() => { setStars(i); setSaved(false); }}>
                 <Ionicons
                   name={filled ? 'star' : 'star-outline'}
                   size={28}
@@ -137,6 +174,20 @@ function Evaluation() {
             <Text style={es.resultTxt}>
               تقييمك: {RATE_LABELS[5 - stars]} ({arDigits(stars)}/{arDigits(5)})
             </Text>
+          </View>
+        )}
+        {stars > 0 && !saved && (
+          <Pressable
+            onPress={submit}
+            disabled={saving}
+            style={[es.submitBtn, saving && es.submitBtnDisabled]}>
+            <Text style={es.submitTxt}>{saving ? 'جارٍ الحفظ...' : 'حفظ التقييم'}</Text>
+          </Pressable>
+        )}
+        {saved && (
+          <View style={es.savedRow}>
+            <Ionicons name="checkmark-circle" size={16} color={Palette.green} />
+            <Text style={es.savedTxt}>تم حفظ تقييمك</Text>
           </View>
         )}
       </View>
@@ -156,6 +207,14 @@ const es = StyleSheet.create({
     backgroundColor: 'rgba(45,90,63,0.08)', alignItems: 'center',
   },
   resultTxt: { fontSize: 12, color: Palette.green, fontFamily: Fonts.arabicBold },
+  submitBtn: {
+    marginTop: 12, paddingVertical: 10, borderRadius: 10,
+    backgroundColor: Palette.greenDk, alignItems: 'center',
+  },
+  submitBtnDisabled: { opacity: 0.5 },
+  submitTxt: { fontSize: 13, color: '#fff', fontFamily: Fonts.arabicBold },
+  savedRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 12 },
+  savedTxt: { fontSize: 12, color: Palette.green, fontFamily: Fonts.arabicBold },
 });
 
 function Inbox() {

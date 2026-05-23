@@ -6,13 +6,14 @@
 
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView,
+  ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView,
   StyleSheet, Text, TextInput, View,
 } from 'react-native';
 import { z } from 'zod';
 
+import { AccessDenied } from '@/components/AccessDenied';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Fonts, Palette } from '@/constants/theme';
@@ -20,9 +21,12 @@ import { useCustomers } from '@/features/partners/partners.hooks';
 import { useItems } from '@/features/items/items.hooks';
 import { PickerSheet } from '@/features/sales/components/PickerSheet';
 import { useCreateSalesOrder } from '@/features/sales/sales.hooks';
+import { usePermissions } from '@/hooks/usePermissions';
 import type { InventoryItem, Packaging } from '@/lib/database.types';
+import { supabase } from '@/lib/supabase';
 import { CLIENT_ID } from '@/lib/tenant';
 import { itemPackagings } from '@/lib/utils';
+import { useAuthStore } from '@/stores/auth';
 
 const headerSchema = z.object({
   customer_id: z.string().min(1, 'الزبون مطلوب'),
@@ -45,18 +49,71 @@ const lineSchema = z.object({
 
 export default function NewOrderScreen() {
   const router = useRouter();
-  const [step, setStep] = useState(0);
+  const { can, isCustomer } = usePermissions();
+  const authUser = useAuthStore((s) => s.user);
 
+  const [step, setStep] = useState(0);
   const [customerId, setCustomerId] = useState<string | null>(null);
+  const [customerName, setCustomerName] = useState<string | null>(null);
+  const [profileLoading, setProfileLoading] = useState(isCustomer);
+  const [profileMissing, setProfileMissing] = useState(false);
   const [site, setSite] = useState('');
   const [description, setDescription] = useState('');
-
   const [lines, setLines] = useState<DraftLine[]>([]);
+
+  // For customer role: auto-load their partner_id + name from user_profiles
+  useEffect(() => {
+    if (!isCustomer || !authUser?.id) return;
+    supabase
+      .from('user_profiles')
+      .select('partner_id, partner:partner_id(partner_name)')
+      .eq('id', authUser.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.partner_id) {
+          setCustomerId(data.partner_id);
+          const name = (data as unknown as { partner?: { partner_name?: string } }).partner?.partner_name ?? null;
+          setCustomerName(name);
+        } else {
+          setProfileMissing(true);
+        }
+        setProfileLoading(false);
+      });
+  }, [isCustomer, authUser?.id]);
 
   const customers = useCustomers(CLIENT_ID);
   const items = useItems();
-
   const createOrder = useCreateSalesOrder();
+
+  if (!can('create_order')) return <AccessDenied />;
+
+  if (isCustomer && profileLoading) {
+    return (
+      <Screen>
+        <ScreenHeader eyebrow="طلب جديد" title="جارٍ التحميل..." />
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator color={Palette.greenDk} />
+        </View>
+      </Screen>
+    );
+  }
+
+  if (isCustomer && profileMissing) {
+    return (
+      <Screen>
+        <ScreenHeader eyebrow="طلب جديد" title="غير مرتبط" />
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 40, gap: 10 }}>
+          <Ionicons name="alert-circle-outline" size={42} color={Palette.inkSoft} />
+          <Text style={{ fontSize: 15, color: Palette.ink, fontFamily: Fonts.arabicBold, textAlign: 'center' }}>
+            الحساب غير مرتبط بزبون
+          </Text>
+          <Text style={{ fontSize: 13, color: Palette.inkSoft, fontFamily: Fonts.arabic, textAlign: 'center', lineHeight: 20 }}>
+            يرجى التواصل مع المسؤول لربط حسابك بسجل الزبون
+          </Text>
+        </View>
+      </Screen>
+    );
+  }
 
   const next = () => {
     if (step === 0) {
@@ -128,6 +185,8 @@ export default function NewOrderScreen() {
             <HeaderStep
               customers={customers}
               customerId={customerId}
+              customerName={customerName}
+              isCustomer={isCustomer}
               site={site}
               description={description}
               setCustomerId={setCustomerId}
@@ -145,7 +204,11 @@ export default function NewOrderScreen() {
           )}
           {step === 2 && (
             <ReviewStep
-              customerLabel={customers.data?.find((c) => c.id === customerId)?.partner_name ?? '—'}
+              customerLabel={
+                customers.data?.find((c) => c.id === customerId)?.partner_name
+                ?? customerName
+                ?? '—'
+              }
               site={site}
               description={description}
               lines={lines}
@@ -198,11 +261,13 @@ const stepperStyles = StyleSheet.create({
 });
 
 function HeaderStep({
-  customers, customerId, site, description,
+  customers, customerId, customerName, isCustomer, site, description,
   setCustomerId, setSite, setDescription,
 }: {
   customers: ReturnType<typeof useCustomers>;
   customerId: string | null;
+  customerName: string | null;
+  isCustomer: boolean;
   site: string;
   description: string;
   setCustomerId: (id: string) => void;
@@ -210,16 +275,30 @@ function HeaderStep({
   setDescription: (v: string) => void;
 }) {
   const [showCustomers, setShowCustomers] = useState(false);
-  const customerLabel = customers.data?.find((c) => c.id === customerId)?.partner_name ?? null;
+  const resolvedLabel =
+    customers.data?.find((c) => c.id === customerId)?.partner_name
+    ?? customerName
+    ?? null;
 
   return (
     <View style={{ gap: 12 }}>
-      <FieldButton
-        label="الزبون"
-        value={customerLabel}
-        placeholder="اختر زبونًا"
-        onPress={() => setShowCustomers(true)}
-      />
+      {isCustomer ? (
+        // Customer role: locked read-only display of their own name
+        <View>
+          <Text style={fieldStyles.label}>الزبون</Text>
+          <View style={[fieldStyles.field, { opacity: 0.8 }]}>
+            <Text style={fieldStyles.value}>{resolvedLabel ?? '—'}</Text>
+            <Ionicons name="lock-closed-outline" size={14} color={Palette.inkSoft} />
+          </View>
+        </View>
+      ) : (
+        <FieldButton
+          label="الزبون"
+          value={resolvedLabel}
+          placeholder="اختر زبونًا"
+          onPress={() => setShowCustomers(true)}
+        />
+      )}
       <TextField
         label="الموقع"
         value={site}
@@ -234,15 +313,17 @@ function HeaderStep({
         multiline
       />
 
-      <PickerSheet
-        visible={showCustomers}
-        onClose={() => setShowCustomers(false)}
-        eyebrow="اختيار"
-        title="الزبائن"
-        loading={customers.isLoading}
-        items={(customers.data ?? []).map((c) => ({ id: c.id, label: c.partner_name, sub: c.phone_no ?? undefined }))}
-        onSelect={setCustomerId}
-      />
+      {!isCustomer && (
+        <PickerSheet
+          visible={showCustomers}
+          onClose={() => setShowCustomers(false)}
+          eyebrow="اختيار"
+          title="الزبائن"
+          loading={customers.isLoading}
+          items={(customers.data ?? []).map((c) => ({ id: c.id, label: c.partner_name, sub: c.phone_no ?? undefined }))}
+          onSelect={setCustomerId}
+        />
+      )}
     </View>
   );
 }

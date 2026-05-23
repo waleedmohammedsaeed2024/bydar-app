@@ -142,6 +142,71 @@ async function applyStockForLine(line: {
   }
 }
 
+// Adjust item_stock.quantity by `delta` (positive to add, negative to remove).
+// Cost is not re-computed because reversing a weighted-average is lossy; we
+// only track the qty side here, which is what the UI needs for shortage checks.
+async function adjustStockQty(
+  itemId: string,
+  packagingId: string | null,
+  delta: number,
+): Promise<void> {
+  if (delta === 0) return;
+  let q = supabase.from('item_stock').select('id, quantity').eq('item_id', itemId);
+  q = packagingId === null ? q.is('packaging_id', null) : q.eq('packaging_id', packagingId);
+  const { data: existing, error: readErr } = await q.maybeSingle();
+  if (readErr) throw new Error(`adjustStockQty read: ${readErr.message}`);
+  if (!existing) {
+    // No stock row to adjust against; nothing to do.
+    return;
+  }
+  const newQty = Number(existing.quantity) + delta;
+  const { error: upErr } = await supabase
+    .from('item_stock')
+    .update({ quantity: newQty })
+    .eq('id', existing.id);
+  if (upErr) throw new Error(`adjustStockQty update: ${upErr.message}`);
+}
+
+export async function updatePurchaseInvoiceItemQty(args: {
+  invoiceId: string;
+  lineId: string;
+  quantity: number;
+}): Promise<void> {
+  if (args.quantity < 1) throw new Error('quantity must be >= 1');
+  const { data: line, error: readErr } = await supabase
+    .from('purchase_invoice_item')
+    .select('id, item_id, packaging_id, quantity')
+    .eq('id', args.lineId)
+    .single();
+  if (readErr) throw new Error(`updatePILineQty read: ${readErr.message}`);
+  const delta = args.quantity - Number(line.quantity);
+  const { error: upErr } = await supabase
+    .from('purchase_invoice_item')
+    .update({ quantity: args.quantity })
+    .eq('id', args.lineId);
+  if (upErr) throw new Error(`updatePILineQty update: ${upErr.message}`);
+  await adjustStockQty(line.item_id, line.packaging_id, delta);
+}
+
+export async function deletePurchaseInvoiceItem(args: {
+  invoiceId: string;
+  lineId: string;
+}): Promise<void> {
+  const { data: line, error: readErr } = await supabase
+    .from('purchase_invoice_item')
+    .select('id, item_id, packaging_id, quantity, deleted_at')
+    .eq('id', args.lineId)
+    .single();
+  if (readErr) throw new Error(`deletePILine read: ${readErr.message}`);
+  if (line.deleted_at) return;
+  const { error: upErr } = await supabase
+    .from('purchase_invoice_item')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', args.lineId);
+  if (upErr) throw new Error(`deletePILine update: ${upErr.message}`);
+  await adjustStockQty(line.item_id, line.packaging_id, -Number(line.quantity));
+}
+
 export async function createPurchaseInvoice(input: NewPurchaseInput): Promise<{ id: string }> {
   if (input.lines.length === 0) {
     throw new Error('createPurchaseInvoice: must have at least one line');

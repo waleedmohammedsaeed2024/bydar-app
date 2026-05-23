@@ -5,10 +5,12 @@ import {
   ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View,
 } from 'react-native';
 
+import { AccessDenied } from '@/components/AccessDenied';
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { Screen } from '@/components/Screen';
 import { Fonts, Palette, arDigits, arMonths } from '@/constants/theme';
 import { usePurchaseInvoices } from '@/features/purchases/purchases.hooks';
+import { usePermissions } from '@/hooks/usePermissions';
 import type { PurchaseInvoice, PurchaseInvoiceItem } from '@/lib/database.types';
 import { formatCurrency } from '@/lib/utils';
 import { useNotificationsStore } from '@/stores/notifications';
@@ -37,6 +39,7 @@ function dayLabel(iso: string): string {
 }
 
 export default function PurchaseTab() {
+  const { can } = usePermissions();
   const router = useRouter();
   const params = useLocalSearchParams<{ created?: string }>();
   const [search, setSearch] = useState('');
@@ -69,6 +72,8 @@ export default function PurchaseTab() {
   const justCreatedId = params.created;
   const isNew = (id: string) => id === justCreatedId || newPurchaseIds.includes(id);
 
+  if (!can('read_purchases')) return <AccessDenied />;
+
   return (
     <Screen>
       <OfflineBanner />
@@ -91,16 +96,18 @@ export default function PurchaseTab() {
         </View>
       )}
 
-      <Pressable style={styles.newBtn} onPress={() => router.push('/purchase/new')}>
-        <View style={styles.newIcon}>
-          <Ionicons name="add" size={20} color="#fff" />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.newTitle}>فاتورة شراء جديدة</Text>
-          <Text style={styles.newSub}>أضف فاتورة من مورد بأصناف وكميات وأسعار</Text>
-        </View>
-        <Ionicons name="chevron-back" size={16} color={Palette.inkSoft} />
-      </Pressable>
+      {can('create_purchase') && (
+        <Pressable style={styles.newBtn} onPress={() => router.push('/purchase/new')}>
+          <View style={styles.newIcon}>
+            <Ionicons name="add" size={20} color="#fff" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.newTitle}>فاتورة شراء جديدة</Text>
+            <Text style={styles.newSub}>أضف فاتورة من مورد بأصناف وكميات وأسعار</Text>
+          </View>
+          <Ionicons name="chevron-back" size={16} color={Palette.inkSoft} />
+        </Pressable>
+      )}
 
       <View style={styles.searchWrap}>
         <View style={styles.search}>

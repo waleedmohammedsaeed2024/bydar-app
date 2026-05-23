@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { z } from 'zod';
 
+import { AccessDenied } from '@/components/AccessDenied';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Fonts, Palette, arDigits, arMonths } from '@/constants/theme';
@@ -14,6 +15,7 @@ import { useItems } from '@/features/items/items.hooks';
 import { useSuppliers } from '@/features/partners/partners.hooks';
 import { PickerSheet } from '@/features/sales/components/PickerSheet';
 import { useCreatePurchaseInvoice } from '@/features/purchases/purchases.hooks';
+import { usePermissions } from '@/hooks/usePermissions';
 import type { InventoryItem, Packaging } from '@/lib/database.types';
 import { formatCurrency, itemPackagings } from '@/lib/utils';
 import { useNotificationsStore } from '@/stores/notifications';
@@ -46,6 +48,7 @@ function arDate(iso: string): string {
 }
 
 export default function NewPurchaseScreen() {
+  const { can } = usePermissions();
   const router = useRouter();
   const pushPurchase = useNotificationsStore((s) => s.pushPurchase);
 
@@ -60,6 +63,8 @@ export default function NewPurchaseScreen() {
 
   const [showSuppliers, setShowSuppliers] = useState(false);
   const [showItems, setShowItems] = useState(false);
+
+  if (!can('create_purchase')) return <AccessDenied />;
 
   const supplierLabel =
     suppliers.data?.find((s) => s.id === supplierId)?.partner_name ?? null;

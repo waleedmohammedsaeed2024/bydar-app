@@ -3,11 +3,13 @@ import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { AccessDenied } from '@/components/AccessDenied';
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Fonts, Palette, arDigits } from '@/constants/theme';
 import { useCustomers } from '@/features/partners/partners.hooks';
+import { usePermissions } from '@/hooks/usePermissions';
 import type { Partner } from '@/lib/database.types';
 import { CLIENT_ID } from '@/lib/tenant';
 
@@ -36,8 +38,11 @@ function Row({ c, onPress }: { c: Partner; onPress: () => void }) {
 }
 
 export default function CustomersScreen() {
+  const { can } = usePermissions();
   const router = useRouter();
   const [q, setQ] = useState('');
+
+  if (!can('read_customers')) return <AccessDenied />;
   const customers = useCustomers(CLIENT_ID);
   const list = customers.data ?? [];
 

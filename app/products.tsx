@@ -6,6 +6,7 @@ import { OfflineBanner } from '@/components/OfflineBanner';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { useItems } from '@/features/items/items.hooks';
+import { usePermissions } from '@/hooks/usePermissions';
 import type { InventoryItem } from '@/lib/database.types';
 import { swatchFor } from '@/lib/swatch';
 import { itemPackagings } from '@/lib/utils';
@@ -30,6 +31,7 @@ function PkgBadge({ label }: { label: string }) {
 }
 
 export default function ProductsScreen() {
+  const { isCustomer } = usePermissions();
   const [q, setQ] = useState('');
   const items = useItems(q || undefined);
 
@@ -74,10 +76,12 @@ export default function ProductsScreen() {
                       </View>
                     )}
                   </View>
-                  <View style={styles.stockBox}>
-                    <Text style={styles.stockNum}>{arDigits(p.quantity)}</Text>
-                    <Text style={styles.stockLabel}>متوفر</Text>
-                  </View>
+                  {!isCustomer && (
+                    <View style={styles.stockBox}>
+                      <Text style={styles.stockNum}>{arDigits(p.quantity)}</Text>
+                      <Text style={styles.stockLabel}>متوفر</Text>
+                    </View>
+                  )}
                 </View>
               );
             })}
