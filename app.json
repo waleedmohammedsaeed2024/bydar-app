@@ -23,7 +23,11 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -46,7 +50,11 @@
     },
     "extra": {
       "supabaseUrl": "https://avuedapgjitwnimkrjlp.supabase.co",
-      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2dWVkYXBnaml0d25pbWtyamxwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwOTM4MTgsImV4cCI6MjA4NDY2OTgxOH0.l7tm4FmA2LFO8npZdPOHO5P1TXN1ExEjHz5MnN44GSU"
+      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2dWVkYXBnaml0d25pbWtyamxwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwOTM4MTgsImV4cCI6MjA4NDY2OTgxOH0.l7tm4FmA2LFO8npZdPOHO5P1TXN1ExEjHz5MnN44GSU",
+      "router": {},
+      "eas": {
+        "projectId": "686515b0-bc82-4503-a7e8-41d0722a98b5"
+      }
     }
   }
 }
