@@ -10,7 +10,6 @@ type AuthState = {
   loading: boolean;
   initialize: () => Promise<void>;
   signInWithPassword: (email: string, password: string) => Promise<void>;
-  signUpWithPassword: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 };
@@ -38,16 +37,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ loading: true });
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-    } finally {
-      set({ loading: false });
-    }
-  },
-
-  signUpWithPassword: async (email, password) => {
-    set({ loading: true });
-    try {
-      const { error } = await supabase.auth.signUp({ email, password });
       if (error) throw error;
     } finally {
       set({ loading: false });

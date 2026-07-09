@@ -40,7 +40,7 @@ export default function OrdersTrendReport() {
 
   return (
     <Screen>
-      <ScreenHeader eyebrow="تقرير" title="الطلبات عبر الزمن" trailing="none" />
+      <ScreenHeader eyebrow="تقرير" title="الطلبات خلال الشهور" trailing="none" />
       <ScrollView contentContainerStyle={{ padding: 22, paddingBottom: 130 }} showsVerticalScrollIndicator={false}>
         <View style={styles.summary}>
           <View style={styles.stat}>

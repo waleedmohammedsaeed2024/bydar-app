@@ -22,6 +22,7 @@ import { useItems } from '@/features/items/items.hooks';
 import { PickerSheet } from '@/features/sales/components/PickerSheet';
 import { useCreateSalesOrder } from '@/features/sales/sales.hooks';
 import { usePermissions } from '@/hooks/usePermissions';
+import { useTabBarHeight } from '@/hooks/useTabBarHeight';
 import type { InventoryItem, Packaging } from '@/lib/database.types';
 import { supabase } from '@/lib/supabase';
 import { CLIENT_ID } from '@/lib/tenant';
@@ -51,6 +52,7 @@ export default function NewOrderScreen() {
   const router = useRouter();
   const { can, isCustomer } = usePermissions();
   const authUser = useAuthStore((s) => s.user);
+  const tabBarHeight = useTabBarHeight();
 
   const [step, setStep] = useState(0);
   const [customerId, setCustomerId] = useState<string | null>(null);
@@ -216,7 +218,7 @@ export default function NewOrderScreen() {
           )}
         </ScrollView>
 
-        <View style={styles.footer}>
+        <View style={[styles.footer, { paddingBottom: tabBarHeight + 10 }]}>
           {step > 0 && (
             <Pressable
               style={[styles.btn, styles.btnSecondary]}
@@ -562,10 +564,12 @@ const reviewStyles = StyleSheet.create({
 });
 
 const styles = StyleSheet.create({
-  body: { padding: 22, paddingBottom: 120 },
+  // Footer reserves its own space below the ScrollView, so the body only
+  // needs breathing room, not tab-bar clearance.
+  body: { padding: 22, paddingBottom: 32 },
   footer: {
     flexDirection: 'row', gap: 10,
-    paddingHorizontal: 22, paddingTop: 8, paddingBottom: 22,
+    paddingHorizontal: 22, paddingTop: 8,
     backgroundColor: Palette.bgBottom,
     borderTopWidth: 1, borderTopColor: Palette.line,
   },

@@ -48,7 +48,7 @@ const REPORTS: Report[] = [
     href: "/reports/orders-by-date",
   },
   {
-    title: "الطلبات عبر الزمن",
+    title: "الطلبات خلال الشهور",
     sub: "تطور حجم الطلبات والاتجاه الشهري",
     icon: "trending-up-outline",
     accent: Palette.cardB,
