@@ -18,6 +18,8 @@ import { I18nManager } from "react-native";
 import "react-native-reanimated";
 import "react-native-url-polyfill/auto";
 
+import { SplashScreenView } from "@/components/SplashScreenView";
+
 import { useColorScheme } from "@/components/useColorScheme";
 import { useNewOrderWatcher } from "@/features/sales/useNewOrderWatcher";
 import { makeQueryClient, queryPersister } from "@/lib/query-client";
@@ -44,6 +46,7 @@ export default function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
     ...FontAwesome.font,
   });
+  const [splashDone, setSplashDone] = useState(false);
 
   useEffect(() => {
     if (error) throw error;
@@ -57,6 +60,10 @@ export default function RootLayout() {
 
   if (!loaded) {
     return null;
+  }
+
+  if (!splashDone) {
+    return <SplashScreenView onFinished={() => setSplashDone(true)} />;
   }
 
   return <RootLayoutNav />;
