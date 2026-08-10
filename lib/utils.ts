@@ -52,6 +52,36 @@ export function shortOrderId(id: string): string {
   return `#${id.slice(0, 6)}`;
 }
 
+/** Quantities step by 1 (whole) or 0.5 (half) — never finer. */
+export const QTY_STEPS = [1, 0.5] as const;
+export type QtyStep = (typeof QTY_STEPS)[number];
+
+export function isHalfStep(q: number): boolean {
+  return Number.isFinite(q) && Number.isInteger(q * 2);
+}
+
+/** "2" / "2.5" — always Latin digits, at most one decimal place. */
+export function formatQty(q: number): string {
+  return Number.isInteger(q) ? String(q) : q.toFixed(1);
+}
+
+/** Splits a quantity for display: integer part bold, fraction light. */
+export function splitQty(q: number): { int: string; frac: string | null } {
+  const [int, frac] = formatQty(q).split('.');
+  return { int, frac: frac ? `.${frac}` : null };
+}
+
+export function stepQty(current: number, step: QtyStep, dir: 1 | -1): number {
+  const next = Math.round((current + step * dir) * 2) / 2;
+  return Math.max(step, next);
+}
+
+/** Snaps a quantity to the given step — used when toggling half → whole. */
+export function snapQty(q: number, step: QtyStep): number {
+  if (step === 0.5) return Math.max(0.5, Math.round(q * 2) / 2);
+  return Math.max(1, Math.round(q));
+}
+
 export function formatCurrency(n: number, locale = 'ar-SA-u-nu-latn', currency = 'SAR'): string {
   try {
     return new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 2 })

@@ -1,10 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { Screen } from '@/components/Screen';
-import { Fonts, Palette } from '@/constants/theme';
+import { Tap } from '@/components/Tap';
+import { Fonts, Palette, Radius } from '@/constants/theme';
 import { useAuthStore } from '@/stores/auth';
 
 export default function MoreScreen() {
@@ -34,10 +35,10 @@ export default function MoreScreen() {
           هذا التبويب فارغ عمدًا. أخبرني بما تريد إضافته هنا — لوحة معلومات، عملاء، مخزون، إعدادات — وسأبنيه لك.
         </Text>
 
-        <Pressable
+        <Tap
           disabled={busy}
           onPress={onSignOut}
-          style={({ pressed }) => [styles.signOut, (pressed || busy) && { opacity: 0.85 }]}>
+          style={[styles.signOut, busy && { opacity: 0.6 }]}>
           {busy ? (
             <ActivityIndicator color="#fff" />
           ) : (
@@ -46,7 +47,7 @@ export default function MoreScreen() {
               <Text style={styles.signOutTxt}>تسجيل الخروج</Text>
             </>
           )}
-        </Pressable>
+        </Tap>
       </View>
     </Screen>
   );
@@ -58,14 +59,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32, paddingBottom: 120, gap: 16,
   },
   icon: {
-    width: 92, height: 92, borderRadius: 28, backgroundColor: Palette.cardA,
+    width: 92, height: 92, borderRadius: Radius.xl, backgroundColor: Palette.cardA,
     alignItems: 'center', justifyContent: 'center',
   },
   title: { fontSize: 20, color: Palette.ink, fontFamily: Fonts.arabicBold, letterSpacing: -0.3 },
   body: { fontSize: 13, color: Palette.inkSoft, textAlign: 'center', lineHeight: 22, fontFamily: Fonts.arabic, maxWidth: 280 },
   signOut: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    backgroundColor: Palette.greenDk, paddingHorizontal: 28, paddingVertical: 14, borderRadius: 14, marginTop: 16,
+    backgroundColor: Palette.greenDk, paddingHorizontal: 28, paddingVertical: 14, borderRadius: Radius.md, marginTop: 16,
   },
   signOutTxt: { color: '#fff', fontSize: 14, fontFamily: Fonts.arabicBold },
 });

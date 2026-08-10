@@ -8,15 +8,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
-  ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView,
+  ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView,
   StyleSheet, Text, TextInput, View,
 } from 'react-native';
 import { z } from 'zod';
 
 import { AccessDenied } from '@/components/AccessDenied';
+import { Tap } from '@/components/Tap';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
-import { Fonts, Palette } from '@/constants/theme';
+import { Fonts, Palette, Radius } from '@/constants/theme';
 import { useCustomers } from '@/features/partners/partners.hooks';
 import { useItems } from '@/features/items/items.hooks';
 import { PickerSheet } from '@/features/sales/components/PickerSheet';
@@ -26,7 +27,8 @@ import { useTabBarHeight } from '@/hooks/useTabBarHeight';
 import type { InventoryItem, Packaging } from '@/lib/database.types';
 import { supabase } from '@/lib/supabase';
 import { CLIENT_ID } from '@/lib/tenant';
-import { itemPackagings } from '@/lib/utils';
+import { isHalfStep, itemPackagings, snapQty, type QtyStep } from '@/lib/utils';
+import { QtyStepper, QtyText } from '@/components/QtyStepper';
 import { useAuthStore } from '@/stores/auth';
 
 const headerSchema = z.object({
@@ -40,12 +42,16 @@ type DraftLine = {
   item: InventoryItem;
   packaging: Packaging | null;
   quantity: number;
+  /** 1 = whole units (default), 0.5 = half units. Per line, per packaging. */
+  step: QtyStep;
 };
 
 const lineSchema = z.object({
   item_id: z.string().min(1),
   packaging_id: z.string().nullable(),
-  quantity: z.number().int().positive('الكمية يجب أن تكون أكبر من صفر'),
+  quantity: z.number()
+    .positive('الكمية يجب أن تكون أكبر من صفر')
+    .refine(isHalfStep, 'الكمية يجب أن تكون من مضاعفات 0.5'),
 });
 
 export default function NewOrderScreen() {
@@ -220,25 +226,25 @@ export default function NewOrderScreen() {
 
         <View style={[styles.footer, { paddingBottom: tabBarHeight + 10 }]}>
           {step > 0 && (
-            <Pressable
+            <Tap
               style={[styles.btn, styles.btnSecondary]}
               onPress={() => setStep((s) => Math.max(0, s - 1))}>
               <Text style={styles.btnSecondaryTxt}>السابق</Text>
-            </Pressable>
+            </Tap>
           )}
           {step < 2 ? (
-            <Pressable style={[styles.btn, styles.btnPrimary]} onPress={next}>
+            <Tap style={[styles.btn, styles.btnPrimary]} onPress={next}>
               <Text style={styles.btnPrimaryTxt}>التالي</Text>
               <Ionicons name="arrow-back" size={16} color="#fff" />
-            </Pressable>
+            </Tap>
           ) : (
-            <Pressable
+            <Tap
               disabled={createOrder.isPending}
               style={[styles.btn, styles.btnPrimary, createOrder.isPending && { opacity: 0.7 }]}
               onPress={submit}>
               <Text style={styles.btnPrimaryTxt}>{createOrder.isPending ? 'جارٍ الإرسال...' : 'إرسال الطلب'}</Text>
               <Ionicons name="checkmark" size={16} color="#fff" />
-            </Pressable>
+            </Tap>
           )}
         </View>
       </KeyboardAvoidingView>
@@ -346,7 +352,8 @@ function LinesStep({
     const def = itemPackagings(it)[0] ?? null;
     setLines([
       ...lines,
-      { uid: `${id}-${Date.now()}`, item: it, packaging: def, quantity: 1 },
+      // New lines always start on whole numbers; the switch opts into halves.
+      { uid: `${id}-${Date.now()}`, item: it, packaging: def, quantity: 1, step: 1 },
     ]);
   };
 
@@ -356,10 +363,10 @@ function LinesStep({
 
   return (
     <View style={{ gap: 12 }}>
-      <Pressable style={lineStyles.addBtn} onPress={() => setShowItems(true)}>
+      <Tap style={lineStyles.addBtn} onPress={() => setShowItems(true)}>
         <Ionicons name="add" size={18} color="#fff" />
         <Text style={lineStyles.addTxt}>إضافة صنف</Text>
-      </Pressable>
+      </Tap>
 
       {lines.length === 0 ? (
         <Text style={lineStyles.empty}>لم تتم إضافة أي صنف بعد</Text>
@@ -370,9 +377,9 @@ function LinesStep({
           <View key={l.uid} style={lineStyles.card}>
             <View style={lineStyles.row}>
               <Text style={lineStyles.name}>{l.item.item_name}</Text>
-              <Pressable hitSlop={8} onPress={() => remove(l.uid)}>
-                <Ionicons name="close-circle" size={20} color="#8a3e3e" />
-              </Pressable>
+              <Tap hitSlop={8} onPress={() => remove(l.uid)}>
+                <Ionicons name="close-circle" size={20} color={Palette.danger} />
+              </Tap>
             </View>
 
             {packs.length > 0 && (
@@ -380,29 +387,28 @@ function LinesStep({
                 {packs.map((p) => {
                   const sel = p.id === l.packaging?.id;
                   return (
-                    <Pressable
+                    <Tap
                       key={p.id}
                       onPress={() => update(l.uid, { packaging: p })}
                       style={[lineStyles.pkg, sel && lineStyles.pkgSel]}>
                       <Text style={[lineStyles.pkgTxt, sel && lineStyles.pkgTxtSel]}>{p.pack_arab}</Text>
-                    </Pressable>
+                    </Tap>
                   );
                 })}
               </View>
             )}
 
             <View style={lineStyles.qtyRow}>
-              <Pressable
-                style={lineStyles.qtyBtn}
-                onPress={() => update(l.uid, { quantity: Math.max(1, l.quantity - 1) })}>
-                <Text style={lineStyles.qtyBtnTxt}>−</Text>
-              </Pressable>
-              <Text style={lineStyles.qty}>{l.quantity}</Text>
-              <Pressable
-                style={[lineStyles.qtyBtn, lineStyles.qtyBtnPlus]}
-                onPress={() => update(l.uid, { quantity: l.quantity + 1 })}>
-                <Text style={lineStyles.qtyBtnPlusTxt}>＋</Text>
-              </Pressable>
+              <QtyStepper
+                value={l.quantity}
+                step={l.step}
+                onChange={(quantity) => update(l.uid, { quantity })}
+                onStepChange={(step) =>
+                  // Back to whole units: round the current quantity so the
+                  // line never sits on a half it can no longer reach.
+                  update(l.uid, { step, quantity: snapQty(l.quantity, step) })
+                }
+              />
             </View>
           </View>
           );
@@ -445,7 +451,8 @@ function ReviewStep({
             <View style={{ flex: 1 }}>
               <Text style={reviewStyles.lineName}>{l.item.item_name}</Text>
               <Text style={reviewStyles.lineMeta}>
-                {l.quantity}× {l.packaging?.pack_arab ?? ''}
+                <QtyText value={l.quantity} style={reviewStyles.lineQty} />
+                × {l.packaging?.pack_arab ?? ''}
               </Text>
             </View>
           </View>
@@ -473,7 +480,7 @@ function FieldButton({
   return (
     <View>
       <Text style={fieldStyles.label}>{label}</Text>
-      <Pressable
+      <Tap
         disabled={disabled}
         style={[fieldStyles.field, disabled && { opacity: 0.55 }]}
         onPress={onPress}>
@@ -481,7 +488,7 @@ function FieldButton({
           {value ?? placeholder}
         </Text>
         <Ionicons name="chevron-back" size={14} color={Palette.inkSoft} />
-      </Pressable>
+      </Tap>
     </View>
   );
 }
@@ -513,7 +520,8 @@ const fieldStyles = StyleSheet.create({
   label: { fontSize: 12, color: Palette.inkSoft, fontFamily: Fonts.arabicMedium, marginBottom: 6 },
   field: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#fff', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 14,
+    backgroundColor: '#fff', borderRadius: Radius.md, paddingHorizontal: 14, paddingVertical: 14,
+    borderWidth: 1, borderColor: Palette.line,
   },
   value: { flex: 1, fontSize: 14, color: Palette.ink, fontFamily: Fonts.arabic, textAlign: 'right' },
   placeholder: { flex: 1, fontSize: 14, color: Palette.inkSoft, fontFamily: Fonts.arabic, textAlign: 'right' },
@@ -523,32 +531,24 @@ const fieldStyles = StyleSheet.create({
 const lineStyles = StyleSheet.create({
   addBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-    backgroundColor: Palette.greenDk, paddingVertical: 12, borderRadius: 14,
+    backgroundColor: Palette.greenDk, paddingVertical: 12, borderRadius: Radius.md,
   },
   addTxt: { color: '#fff', fontSize: 14, fontFamily: Fonts.arabicBold },
   empty: { textAlign: 'center', color: Palette.inkSoft, fontFamily: Fonts.arabic, padding: 24 },
-  card: { backgroundColor: '#fff', borderRadius: 16, padding: 14, gap: 10 },
+  card: { backgroundColor: '#fff', borderRadius: Radius.md, padding: 14, gap: 10, borderWidth: 1, borderColor: Palette.line },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   name: { fontSize: 15, color: Palette.ink, fontFamily: Fonts.arabicBold, flex: 1 },
   pkgs: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  pkg: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, borderWidth: 1, borderColor: Palette.lineStrong },
+  pkg: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: Radius.pill, borderWidth: 1, borderColor: Palette.lineStrong },
   pkgSel: { backgroundColor: Palette.greenDk, borderColor: Palette.greenDk },
   pkgTxt: { fontSize: 11, color: Palette.ink, fontFamily: Fonts.arabicBold },
   pkgTxtSel: { color: '#fff' },
-  qtyRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 6, borderTopWidth: 1, borderTopColor: Palette.line },
-  qtyBtn: {
-    width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(31,51,38,0.06)',
-    alignItems: 'center', justifyContent: 'center',
-  },
-  qtyBtnPlus: { backgroundColor: Palette.greenDk },
-  qtyBtnTxt: { fontSize: 18, color: Palette.ink, fontFamily: Fonts.arabicBold, lineHeight: 20 },
-  qtyBtnPlusTxt: { fontSize: 16, color: '#fff', fontFamily: Fonts.arabicBold, lineHeight: 18 },
-  qty: { minWidth: 40, textAlign: 'center', fontSize: 14, color: Palette.ink, fontFamily: Fonts.arabicBold },
+  qtyRow: { paddingTop: 6, borderTopWidth: 1, borderTopColor: Palette.line },
   lineTotal: { marginLeft: 'auto', fontSize: 13, color: Palette.ink, fontFamily: Fonts.arabicBold },
 });
 
 const reviewStyles = StyleSheet.create({
-  card: { backgroundColor: Palette.surface, borderRadius: 20, padding: 14, gap: 8 },
+  card: { backgroundColor: Palette.surface, borderRadius: Radius.lg, padding: 14, gap: 8, borderWidth: 1, borderColor: Palette.line },
   section: { fontSize: 14, color: Palette.ink, fontFamily: Fonts.arabicBold, marginTop: 4 },
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   summaryLabel: { fontSize: 12, color: Palette.inkSoft, fontFamily: Fonts.arabicMedium },
@@ -557,6 +557,7 @@ const reviewStyles = StyleSheet.create({
   lineDivider: { borderTopWidth: 1, borderTopColor: Palette.line },
   lineName: { fontSize: 14, color: Palette.ink, fontFamily: Fonts.arabicBold },
   lineMeta: { fontSize: 11, color: Palette.inkSoft, fontFamily: Fonts.arabic, marginTop: 2 },
+  lineQty: { fontSize: 11, color: Palette.ink, fontFamily: Fonts.arabicBold },
   lineAmt: { fontSize: 13, color: Palette.ink, fontFamily: Fonts.arabicBold },
   totalLine: { borderTopWidth: 1, borderTopColor: Palette.lineStrong, justifyContent: 'space-between' },
   totalLabel: { fontSize: 13, color: Palette.inkSoft, fontFamily: Fonts.arabicBold },
@@ -575,10 +576,10 @@ const styles = StyleSheet.create({
   },
   btn: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    paddingVertical: 14, borderRadius: 16,
+    paddingVertical: 14, borderRadius: Radius.md,
   },
   btnPrimary: { backgroundColor: Palette.greenDk },
   btnPrimaryTxt: { color: '#fff', fontSize: 14, fontFamily: Fonts.arabicBold },
-  btnSecondary: { backgroundColor: 'rgba(255,255,255,0.85)' },
+  btnSecondary: { backgroundColor: 'rgba(255,255,255,0.85)', borderWidth: 1, borderColor: Palette.line },
   btnSecondaryTxt: { color: Palette.ink, fontSize: 14, fontFamily: Fonts.arabicBold },
 });

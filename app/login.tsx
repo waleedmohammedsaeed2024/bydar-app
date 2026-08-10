@@ -1,10 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Screen } from '@/components/Screen';
-import { Fonts, Palette } from '@/constants/theme';
+import { Tap } from '@/components/Tap';
+import { Fonts, Palette, Radius } from '@/constants/theme';
 import { useAuthStore } from '@/stores/auth';
 
 export default function LoginScreen() {
@@ -67,18 +68,17 @@ export default function LoginScreen() {
             />
           </View>
 
-          <Pressable style={styles.forgot}>
+          <Tap style={styles.forgot}>
             <Text style={styles.forgotTxt}>نسيت كلمة المرور؟</Text>
-          </Pressable>
+          </Tap>
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
-          <Pressable
+          <Tap
             disabled={loading || !email || !pass}
-            style={({ pressed }) => [
+            style={[
               styles.cta,
-              (pressed || loading) && { opacity: 0.9 },
-              (!email || !pass) && { opacity: 0.6 },
+              (loading || !email || !pass) && styles.ctaDisabled,
             ]}
             onPress={onSubmit}>
             {loading ? (
@@ -89,12 +89,12 @@ export default function LoginScreen() {
                 <Ionicons name="arrow-back" size={16} color="#fff" />
               </>
             )}
-          </Pressable>
+          </Tap>
         </View>
 
         <View style={styles.footer}>
           <Text style={styles.footerTxt}>ليس لديك حساب؟ </Text>
-          <Pressable><Text style={styles.footerLink}>تواصل مع المسؤول</Text></Pressable>
+          <Tap><Text style={styles.footerLink}>تواصل مع المسؤول</Text></Tap>
         </View>
 
         <View style={styles.credit}>
@@ -110,9 +110,9 @@ const styles = StyleSheet.create({
   container: { flex: 1, paddingHorizontal: 28, justifyContent: 'center', gap: 28 },
   brand: { alignItems: 'center', gap: 8 },
   logo: {
-    width: 96, height: 96, borderRadius: 24, backgroundColor: '#fff',
+    width: 96, height: 96, borderRadius: Radius.xl, backgroundColor: '#fff',
     overflow: 'hidden', marginBottom: 12,
-    shadowColor: '#1f3326', shadowOpacity: 0.18, shadowRadius: 20, shadowOffset: { width: 0, height: 8 },
+    borderWidth: 1, borderColor: Palette.line,
   },
   logoImg: { width: '100%', height: '100%' },
   eyebrow: { fontSize: 12, color: Palette.inkSoft, fontFamily: Fonts.arabicMedium },
@@ -124,19 +124,19 @@ const styles = StyleSheet.create({
   form: { gap: 12 },
   field: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: '#fff', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 14,
-    shadowColor: '#1f3326', shadowOpacity: 0.06, shadowRadius: 4, shadowOffset: { width: 0, height: 1 },
+    backgroundColor: '#fff', borderRadius: Radius.md, paddingHorizontal: 14, paddingVertical: 14,
+    borderWidth: 1, borderColor: Palette.line,
   },
   input: { flex: 1, fontSize: 14, color: Palette.ink, fontFamily: Fonts.arabic, textAlign: 'right', padding: 0 },
   forgot: { alignSelf: 'flex-start' },
   forgotTxt: { fontSize: 12, color: Palette.green, fontFamily: Fonts.arabicBold },
   cta: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    backgroundColor: Palette.greenDk, paddingVertical: 16, borderRadius: 16, marginTop: 8,
-    shadowColor: '#1d3f2a', shadowOpacity: 0.28, shadowRadius: 12, shadowOffset: { width: 0, height: 4 },
+    backgroundColor: Palette.greenDk, paddingVertical: 16, borderRadius: Radius.md, marginTop: 8,
   },
+  ctaDisabled: { opacity: 0.45 },
   ctaTxt: { color: '#fff', fontSize: 15, fontFamily: Fonts.arabicBold },
-  error: { fontSize: 12, color: '#c0392b', fontFamily: Fonts.arabicMedium, textAlign: 'center' },
+  error: { fontSize: 12, color: Palette.danger, fontFamily: Fonts.arabicMedium, textAlign: 'center' },
   footer: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
   footerTxt: { fontSize: 12, color: Palette.inkSoft, fontFamily: Fonts.arabic },
   footerLink: { fontSize: 12, color: Palette.green, fontFamily: Fonts.arabicBold },
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     backgroundColor: Palette.cardA,
     paddingHorizontal: 18,
     paddingVertical: 10,
-    borderRadius: 999,
+    borderRadius: Radius.pill,
   },
   creditTxt: { fontSize: 11, color: Palette.greenDk, fontFamily: Fonts.arabicMedium },
 });

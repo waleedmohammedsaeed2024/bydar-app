@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { Fonts, Palette } from '@/constants/theme';
+import { Flat, Fonts, Palette, Radius, Space } from '@/constants/theme';
+import { Tap } from '@/components/Tap';
 
 export function ScreenHeader({
   eyebrow,
@@ -22,23 +23,23 @@ export function ScreenHeader({
 
   return (
     <View style={styles.row}>
-      <Pressable style={styles.iconBtn} onPress={back} hitSlop={8}>
+      <Tap style={styles.iconBtn} onPress={back} hitSlop={8}>
         <Ionicons name="arrow-back" size={20} color={Palette.ink} />
-      </Pressable>
+      </Tap>
       <View style={styles.center}>
         <Text style={styles.eyebrow}>{eyebrow}</Text>
         <Text style={styles.title}>{title}</Text>
       </View>
       {trailing === 'share' ? (
-        <Pressable style={styles.iconBtn} hitSlop={8} onPress={onTrailingPress}>
+        <Tap style={styles.iconBtn} hitSlop={8} onPress={onTrailingPress}>
           <Ionicons name="share-outline" size={18} color={Palette.ink} />
-        </Pressable>
+        </Tap>
       ) : trailing === 'filter' ? (
-        <Pressable style={styles.iconBtn} hitSlop={8} onPress={onTrailingPress}>
+        <Tap style={styles.iconBtn} hitSlop={8} onPress={onTrailingPress}>
           <Ionicons name="options-outline" size={18} color={Palette.ink} />
-        </Pressable>
+        </Tap>
       ) : (
-        <View style={styles.iconBtn} />
+        <View style={styles.spacer} />
       )}
     </View>
   );
@@ -47,14 +48,15 @@ export function ScreenHeader({
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 22, paddingTop: 6, paddingBottom: 4,
+    paddingHorizontal: Space.screen, paddingTop: 6, paddingBottom: Space.xs,
   },
   iconBtn: {
-    width: 44, height: 44, borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.7)',
+    width: 44, height: 44, borderRadius: Radius.pill,
+    ...Flat.card,
     alignItems: 'center', justifyContent: 'center',
-    shadowColor: '#1f3326', shadowOpacity: 0.08, shadowRadius: 3, shadowOffset: { width: 0, height: 1 },
   },
+  // Keeps the title optically centred when there is no trailing action.
+  spacer: { width: 44, height: 44 },
   center: { alignItems: 'center' },
   eyebrow: { fontSize: 11, color: Palette.inkSoft, fontFamily: Fonts.arabicMedium },
   title: { fontSize: 18, color: Palette.ink, fontFamily: Fonts.arabicBold, letterSpacing: -0.3 },

@@ -6,7 +6,7 @@ import { AccessDenied } from '@/components/AccessDenied';
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
-import { Fonts, Palette, arDigits } from '@/constants/theme';
+import { Fonts, Palette, Radius, arDigits } from '@/constants/theme';
 import { useItems, useItemStocks } from '@/features/items/items.hooks';
 import { usePermissions } from '@/hooks/usePermissions';
 import type { InventoryItem, Packaging } from '@/lib/database.types';
@@ -118,17 +118,18 @@ const styles = StyleSheet.create({
   searchWrap: { paddingHorizontal: 22, paddingTop: 12, paddingBottom: 6 },
   search: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: Palette.surface, borderRadius: 14,
+    backgroundColor: Palette.surface, borderRadius: Radius.md,
     paddingHorizontal: 14, paddingVertical: 10,
+    borderWidth: 1, borderColor: Palette.line,
   },
   input: { flex: 1, fontSize: 13, color: Palette.ink, fontFamily: Fonts.arabic, textAlign: 'right', padding: 0 },
   count: { fontSize: 11, color: Palette.inkSoft, fontFamily: Fonts.arabicBold },
   listWrap: { paddingHorizontal: 22, paddingTop: 6, paddingBottom: 130 },
-  list: { backgroundColor: Palette.surface, borderRadius: 20, overflow: 'hidden' },
+  list: { backgroundColor: Palette.surface, borderRadius: Radius.lg, overflow: 'hidden', borderWidth: 1, borderColor: Palette.line },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 },
-  rowDivider: { borderTopWidth: 1, borderTopColor: Palette.lineStrong },
+  rowDivider: { borderTopWidth: 1, borderTopColor: Palette.line },
   iconBox: {
-    width: 44, height: 44, borderRadius: 14,
+    width: 44, height: 44, borderRadius: Radius.md,
     backgroundColor: Palette.cardA,
     alignItems: 'center', justifyContent: 'center',
   },
@@ -137,12 +138,12 @@ const styles = StyleSheet.create({
   badge: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     backgroundColor: '#e9ecef',
-    paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999,
+    paddingHorizontal: 10, paddingVertical: 4, borderRadius: Radius.pill,
   },
   badgeLabel: { color: '#495057', fontSize: 11, fontFamily: Fonts.arabicBold },
   badgeDivider: { width: 1, height: 10, backgroundColor: '#adb5bd' },
   badgeQty: { color: '#343a40', fontSize: 11, fontFamily: Fonts.arabicBold },
   empty: { padding: 32, textAlign: 'center', color: Palette.inkSoft, fontSize: 13, fontFamily: Fonts.arabic },
   center: { padding: 40, alignItems: 'center' },
-  error: { padding: 24, textAlign: 'center', color: '#8a3e3e', fontSize: 13, fontFamily: Fonts.arabicMedium },
+  error: { padding: 24, textAlign: 'center', color: Palette.danger, fontSize: 13, fontFamily: Fonts.arabicMedium },
 });

@@ -3,17 +3,17 @@ import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  Pressable,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 
 import { AccessDenied } from '@/components/AccessDenied';
+import { Tap } from '@/components/Tap';
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
-import { Fonts, Palette, arDigits } from '@/constants/theme';
+import { Fonts, Palette, Radius, arDigits } from '@/constants/theme';
 import { usePermissions } from '@/hooks/usePermissions';
 import { supabase } from '@/lib/supabase';
 import { CLIENT_ID } from '@/lib/tenant';
@@ -69,7 +69,7 @@ function TabBar({ active, onChange }: { active: Tab; onChange: (t: Tab) => void 
       {TABS.map((t) => {
         const isActive = active === t.key;
         return (
-          <Pressable
+          <Tap
             key={t.key}
             disabled={t.disabled}
             onPress={() => onChange(t.key)}
@@ -80,7 +80,7 @@ function TabBar({ active, onChange }: { active: Tab; onChange: (t: Tab) => void 
             {t.disabled && (
               <View style={tb.disabledDot} />
             )}
-          </Pressable>
+          </Tap>
         );
       })}
     </View>
@@ -94,11 +94,12 @@ const tb = StyleSheet.create({
     marginTop: 10,
     marginBottom: 4,
     backgroundColor: Palette.surface,
-    borderRadius: 16,
+    borderRadius: Radius.md,
     padding: 4,
+    borderWidth: 1, borderColor: Palette.line,
   },
   tab: {
-    flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 13,
+    flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: Radius.sm,
     flexDirection: 'row', justifyContent: 'center', gap: 5,
   },
   tabActive: { backgroundColor: Palette.greenDk },
@@ -185,8 +186,9 @@ const nt = StyleSheet.create({
   sep: { height: 8 },
   card: {
     backgroundColor: Palette.surface,
-    borderRadius: 16,
+    borderRadius: Radius.md,
     padding: 14,
+    borderWidth: 1, borderColor: Palette.line,
   },
   cardHeader: {
     flexDirection: 'row', alignItems: 'center',
@@ -195,7 +197,7 @@ const nt = StyleSheet.create({
   badge: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
     backgroundColor: 'rgba(45,90,63,0.10)',
-    paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999,
+    paddingHorizontal: 8, paddingVertical: 3, borderRadius: Radius.pill,
   },
   badgeTxt: { fontSize: 10, color: Palette.green, fontFamily: Fonts.arabicBold },
   time: { fontSize: 11, color: Palette.inkSoft, fontFamily: Fonts.arabic },
@@ -221,7 +223,7 @@ function SurveyTab() {
 
 const sv = StyleSheet.create({
   iconWrap: {
-    width: 64, height: 64, borderRadius: 32,
+    width: 64, height: 64, borderRadius: Radius.pill,
     backgroundColor: 'rgba(31,51,38,0.07)',
     alignItems: 'center', justifyContent: 'center', marginBottom: 12,
   },
@@ -370,7 +372,8 @@ function EvaluationTab({ isAdmin }: { isAdmin: boolean }) {
 const ev = StyleSheet.create({
   avgCard: {
     backgroundColor: Palette.surface,
-    borderRadius: 20, padding: 18,
+    borderRadius: Radius.lg, padding: 18,
+    borderWidth: 1, borderColor: Palette.line,
   },
   avgEyebrow: { fontSize: 11, color: Palette.inkSoft, fontFamily: Fonts.arabicMedium, marginBottom: 10 },
   avgRow: { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 6 },
@@ -391,7 +394,7 @@ const ev = StyleSheet.create({
   adminLocked: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
     backgroundColor: 'rgba(31,51,38,0.05)',
-    borderRadius: 12, padding: 14,
+    borderRadius: Radius.sm, padding: 14,
     borderWidth: 1, borderColor: 'rgba(31,51,38,0.10)',
     borderStyle: 'dashed',
   },
@@ -406,7 +409,7 @@ const ev = StyleSheet.create({
   rowLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   rowBadge: {
     backgroundColor: 'rgba(45,90,63,0.10)',
-    paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999,
+    paddingHorizontal: 8, paddingVertical: 3, borderRadius: Radius.pill,
   },
   rowBadgeTxt: { fontSize: 10, color: Palette.green, fontFamily: Fonts.arabicBold },
   rowTime: { fontSize: 11, color: Palette.inkSoft, fontFamily: Fonts.arabic },

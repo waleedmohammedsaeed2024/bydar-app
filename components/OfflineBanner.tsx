@@ -2,7 +2,7 @@ import NetInfo from '@react-native-community/netinfo';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Fonts } from '@/constants/theme';
+import { Fonts, Palette } from '@/constants/theme';
 
 export function OfflineBanner() {
   const [offline, setOffline] = useState(false);
@@ -24,6 +24,6 @@ export function OfflineBanner() {
 }
 
 const styles = StyleSheet.create({
-  bar: { backgroundColor: '#8a3e3e', paddingVertical: 6, paddingHorizontal: 14, alignItems: 'center' },
+  bar: { backgroundColor: Palette.danger, paddingVertical: 6, paddingHorizontal: 14, alignItems: 'center' },
   txt: { color: '#fff', fontSize: 12, fontFamily: Fonts.arabicBold },
 });

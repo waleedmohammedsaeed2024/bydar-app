@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Image,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -16,7 +15,7 @@ import { ReviewsModal } from "@/components/ReviewsModal";
 import { Screen } from "@/components/Screen";
 import {
   Fonts,
-  Palette,
+  Palette, Radius,
   arDigits,
   arMonths,
   arWeekdaysShort,
@@ -26,6 +25,7 @@ import { useSalesOrders } from "@/features/sales/sales.hooks";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useAuthStore } from "@/stores/auth";
 import { useNotificationsStore } from "@/stores/notifications";
+import { Tap } from '@/components/Tap';
 
 const TODAY = (() => {
   const d = new Date();
@@ -63,7 +63,7 @@ function Header() {
           </Text>
         </View>
       </View>
-      <Pressable style={hs.bell} hitSlop={8} onPress={onBell}>
+      <Tap style={hs.bell} hitSlop={8} onPress={onBell}>
         <Ionicons name="notifications-outline" size={20} color={Palette.ink} />
         {count > 0 && (
           <View style={hs.badge}>
@@ -72,7 +72,7 @@ function Header() {
             </Text>
           </View>
         )}
-      </Pressable>
+      </Tap>
     </View>
   );
 }
@@ -96,14 +96,10 @@ const hs = StyleSheet.create({
   avatar: {
     width: 44,
     height: 44,
-    borderRadius: 22,
+    borderRadius: Radius.pill,
     backgroundColor: Palette.cardB,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#1f3326",
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
   },
   avatarTxt: {
     color: Palette.greenDk,
@@ -124,14 +120,11 @@ const hs = StyleSheet.create({
   bell: {
     width: 44,
     height: 44,
-    borderRadius: 22,
+    borderRadius: Radius.pill,
     backgroundColor: "rgba(255,255,255,0.7)",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#1f3326",
-    shadowOpacity: 0.08,
-    shadowRadius: 3,
-    shadowOffset: { width: 0, height: 1 },
+    borderWidth: 1, borderColor: Palette.line,
   },
   badge: {
     position: "absolute",
@@ -140,8 +133,8 @@ const hs = StyleSheet.create({
     minWidth: 18,
     height: 18,
     paddingHorizontal: 4,
-    borderRadius: 9,
-    backgroundColor: "#c0392b",
+    borderRadius: Radius.pill,
+    backgroundColor: Palette.danger,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1.5,
@@ -204,7 +197,7 @@ function HorizontalCalendar({
           const sel = isSame(d, selected);
           const tday = isSame(d, TODAY);
           return (
-            <Pressable
+            <Tap
               key={i}
               onPress={() => onSelect(d)}
               style={[cs.day, sel && cs.daySel]}
@@ -216,7 +209,7 @@ function HorizontalCalendar({
                 {arDigits(d.getDate())}
               </Text>
               {tday && <View style={[cs.todayPip, sel && cs.todayPipSel]} />}
-            </Pressable>
+            </Tap>
           );
         })}
       </ScrollView>
@@ -240,7 +233,7 @@ const cs = StyleSheet.create({
   },
   year: { color: Palette.green },
   todayBadge: { flexDirection: "row", alignItems: "center", gap: 6 },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: Palette.green },
+  dot: { width: 6, height: 6, borderRadius: Radius.pill, backgroundColor: Palette.green },
   todayTxt: {
     fontSize: 12,
     color: Palette.inkSoft,
@@ -250,18 +243,15 @@ const cs = StyleSheet.create({
   day: {
     width: 52,
     height: 72,
-    borderRadius: 18,
+    borderRadius: Radius.lg,
     backgroundColor: "rgba(255,255,255,0.6)",
     alignItems: "center",
     justifyContent: "center",
     gap: 4,
+    borderWidth: 1, borderColor: Palette.line,
   },
   daySel: {
     backgroundColor: Palette.green,
-    shadowColor: "#2d5a3f",
-    shadowOpacity: 0.28,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 6 },
   },
   dayWk: {
     fontSize: 12,
@@ -280,7 +270,7 @@ const cs = StyleSheet.create({
   todayPip: {
     width: 4,
     height: 4,
-    borderRadius: 2,
+    borderRadius: Radius.pill,
     backgroundColor: Palette.green,
   },
   todayPipSel: { backgroundColor: "#fff" },
@@ -299,10 +289,10 @@ function NewOrderCard() {
       </View>
       <View style={ns.body}>
         <Text style={ns.title}>طلب مبيعات جديد</Text>
-        <Pressable style={ns.cta} onPress={() => router.push("/orders/new")}>
+        <Tap style={ns.cta} onPress={() => router.push("/orders/new")}>
           <Ionicons name="add" size={14} color="#fff" />
           <Text style={ns.ctaTxt}>ابدأ الطلب</Text>
-        </Pressable>
+        </Tap>
       </View>
     </View>
   );
@@ -315,7 +305,7 @@ const ns = StyleSheet.create({
     justifyContent: "space-between",
     marginHorizontal: 22,
     marginTop: 14,
-    borderRadius: 22,
+    borderRadius: Radius.xl,
     overflow: "hidden",
     backgroundColor: Palette.cardB,
     // flexDirection: "row",
@@ -323,15 +313,11 @@ const ns = StyleSheet.create({
     padding: 18,
     gap: 14,
     // justifyContent: "space-between",
-    shadowColor: "#1f3326",
-    shadowOpacity: 0.1,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 4 },
   },
   logoWrap: {
     width: 56,
     height: 56,
-    borderRadius: 28,
+    borderRadius: Radius.pill,
     overflow: "hidden",
     backgroundColor: "transparent",
     borderWidth: 1,
@@ -359,7 +345,7 @@ const ns = StyleSheet.create({
     backgroundColor: Palette.greenDk,
     paddingHorizontal: 14,
     paddingVertical: 7,
-    borderRadius: 999,
+    borderRadius: Radius.pill,
     marginTop: 4,
     width: "auto",
   },
@@ -423,12 +409,12 @@ function QuickActions({ onReviews }: { onReviews: () => void }) {
       contentContainerStyle={qa.grid}
     >
       {items.map((it) => (
-        <Pressable key={it.label} style={qa.cell} onPress={it.onPress}>
+        <Tap key={it.label} style={qa.cell} onPress={it.onPress}>
           <View style={qa.icon}>
             <Ionicons name={it.icon} size={20} color={Palette.greenDk} />
           </View>
           <Text style={qa.label}>{it.label}</Text>
-        </Pressable>
+        </Tap>
       ))}
     </ScrollView>
   );
@@ -443,17 +429,18 @@ const qa = StyleSheet.create({
   },
   cell: {
     backgroundColor: "rgba(255,255,255,0.7)",
-    borderRadius: 18,
+    borderRadius: Radius.lg,
     paddingTop: 14,
     paddingBottom: 10,
     paddingHorizontal: 14,
     alignItems: "center",
     gap: 8,
+    borderWidth: 1, borderColor: Palette.line,
   },
   icon: {
     width: 38,
     height: 38,
-    borderRadius: 19,
+    borderRadius: Radius.pill,
     backgroundColor: Palette.cardA,
     alignItems: "center",
     justifyContent: "center",
@@ -480,14 +467,14 @@ function RecentOrders({ date }: { date: Date }) {
     <View style={ro.wrap}>
       <View style={ro.titleRow}>
         <Text style={ro.title}>الطلبات الأخيرة</Text>
-        <Pressable
+        <Tap
           style={ro.seeAll}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onPress={() => router.navigate("/orders" as any)}
         >
           <Ionicons name="chevron-back" size={14} color={Palette.green} />
           <Text style={ro.seeAllTxt}>عرض الكل</Text>
-        </Pressable>
+        </Tap>
       </View>
 
       <View style={ro.card}>
@@ -550,8 +537,9 @@ const ro = StyleSheet.create({
   },
   card: {
     backgroundColor: Palette.surface,
-    borderRadius: 20,
+    borderRadius: Radius.lg,
     overflow: "hidden",
+    borderWidth: 1, borderColor: Palette.line,
   },
   rowDivider: { borderTopWidth: 1, borderTopColor: Palette.line },
   center: { padding: 28, alignItems: "center" },
@@ -565,7 +553,7 @@ const ro = StyleSheet.create({
   errorTxt: {
     padding: 20,
     textAlign: "center",
-    color: "#8a3e3e",
+    color: Palette.danger,
     fontSize: 12,
     fontFamily: Fonts.arabicMedium,
   },

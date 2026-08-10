@@ -1,11 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
-import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Screen } from '@/components/Screen';
+import { Tap } from '@/components/Tap';
 import { ScreenHeader } from '@/components/ScreenHeader';
-import { Fonts, Palette, arDigits, arMonths } from '@/constants/theme';
+import { Fonts, Palette, Radius, arDigits, arMonths } from '@/constants/theme';
 import {
   useDeletePILine,
   usePurchaseInvoice,
@@ -94,12 +95,12 @@ export default function PurchaseDetailScreen() {
               <Text style={styles.subDate}>{arDateTime(p.invoice_date)}</Text>
             </View>
             {phone && (
-              <Pressable
+              <Tap
                 style={styles.callBtn}
                 onPress={() => Linking.openURL(`tel:${phone}`)}
                 hitSlop={8}>
                 <Ionicons name="call-outline" size={16} color="#fff" />
-              </Pressable>
+              </Tap>
             )}
           </View>
 
@@ -141,26 +142,26 @@ export default function PurchaseDetailScreen() {
                   )}
                   {editable && (
                     <View style={styles.qtyRow}>
-                      <Pressable
+                      <Tap
                         style={styles.qtyBtn}
                         onPress={() => onChangeQty(l.id, Number(l.quantity) - 1)}>
                         <Text style={styles.qtyBtnTxt}>−</Text>
-                      </Pressable>
+                      </Tap>
                       <Text style={styles.qtyVal}>{arDigits(Number(l.quantity))}</Text>
-                      <Pressable
+                      <Tap
                         style={[styles.qtyBtn, styles.qtyBtnPlus]}
                         onPress={() => onChangeQty(l.id, Number(l.quantity) + 1)}>
                         <Text style={styles.qtyBtnPlusTxt}>＋</Text>
-                      </Pressable>
+                      </Tap>
                     </View>
                   )}
                 </View>
                 <View style={{ alignItems: 'flex-end', gap: 6 }}>
                   <Text style={styles.lineTotal}>{formatCurrency(lineTotal(l))}</Text>
                   {editable && (
-                    <Pressable style={styles.removeBtn} hitSlop={8} onPress={() => onRemove(l.id)}>
-                      <Ionicons name="trash-outline" size={16} color="#8a3e3e" />
-                    </Pressable>
+                    <Tap style={styles.removeBtn} hitSlop={8} onPress={() => onRemove(l.id)}>
+                      <Ionicons name="trash-outline" size={16} color={Palette.danger} />
+                    </Tap>
                   )}
                 </View>
               </View>
@@ -190,27 +191,29 @@ function MetaCell({ label, value, accent }: { label: string; value: string; acce
 const styles = StyleSheet.create({
   body: { padding: 22, paddingBottom: 130, gap: 14 },
   center: { padding: 40, alignItems: 'center' },
-  error: { padding: 24, textAlign: 'center', color: '#8a3e3e', fontSize: 13, fontFamily: Fonts.arabicMedium },
+  error: { padding: 24, textAlign: 'center', color: Palette.danger, fontSize: 13, fontFamily: Fonts.arabicMedium },
 
   headerCard: {
-    backgroundColor: Palette.surface, borderRadius: 22, padding: 14, gap: 14,
+    backgroundColor: Palette.surface, borderRadius: Radius.xl, padding: 14, gap: 14,
+    borderWidth: 1, borderColor: Palette.line,
   },
   headerTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   headerIcon: {
-    width: 48, height: 48, borderRadius: 16, backgroundColor: Palette.cardA,
+    width: 48, height: 48, borderRadius: Radius.md, backgroundColor: Palette.cardA,
     alignItems: 'center', justifyContent: 'center',
   },
   supplierName: { fontSize: 17, color: Palette.ink, fontFamily: Fonts.arabicBold, letterSpacing: -0.3 },
   subDate: { fontSize: 11, color: Palette.inkSoft, fontFamily: Fonts.arabicMedium, marginTop: 2 },
   callBtn: {
-    width: 38, height: 38, borderRadius: 19, backgroundColor: Palette.greenDk,
+    width: 38, height: 38, borderRadius: Radius.pill, backgroundColor: Palette.greenDk,
     alignItems: 'center', justifyContent: 'center',
   },
 
   metaGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   metaCell: {
     flexGrow: 1, flexBasis: '46%',
-    backgroundColor: '#fff', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 10, gap: 4,
+    backgroundColor: '#fff', borderRadius: Radius.md, paddingHorizontal: 12, paddingVertical: 10, gap: 4,
+    borderWidth: 1, borderColor: Palette.line,
   },
   metaLabel: { fontSize: 10, color: Palette.inkSoft, fontFamily: Fonts.arabicMedium },
   metaValue: { fontSize: 13, color: Palette.ink, fontFamily: Fonts.arabicBold },
@@ -219,17 +222,17 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 14, color: Palette.ink, fontFamily: Fonts.arabicBold, paddingHorizontal: 4 },
   empty: { padding: 32, textAlign: 'center', color: Palette.inkSoft, fontSize: 13, fontFamily: Fonts.arabic },
 
-  linesCard: { backgroundColor: Palette.surface, borderRadius: 20, overflow: 'hidden' },
+  linesCard: { backgroundColor: Palette.surface, borderRadius: Radius.lg, overflow: 'hidden', borderWidth: 1, borderColor: Palette.line },
   lineRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, padding: 14 },
   lineDivider: { borderTopWidth: 1, borderTopColor: Palette.line },
   lineIcon: {
-    width: 40, height: 40, borderRadius: 14, backgroundColor: Palette.cardA,
+    width: 40, height: 40, borderRadius: Radius.md, backgroundColor: Palette.cardA,
     alignItems: 'center', justifyContent: 'center',
   },
   lineName: { fontSize: 14, color: Palette.ink, fontFamily: Fonts.arabicBold, letterSpacing: -0.2 },
   lineMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4, flexWrap: 'wrap' },
   pkgBadge: {
-    backgroundColor: Palette.greenDk, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999,
+    backgroundColor: Palette.greenDk, paddingHorizontal: 8, paddingVertical: 3, borderRadius: Radius.pill,
   },
   pkgBadgeTxt: { color: '#fff', fontSize: 10, fontFamily: Fonts.arabicBold },
   lineMeta: { fontSize: 11, color: Palette.inkSoft, fontFamily: Fonts.arabicMedium },
@@ -237,7 +240,7 @@ const styles = StyleSheet.create({
   lineTotal: { fontSize: 13, color: Palette.greenDk, fontFamily: Fonts.arabicBold, marginTop: 10 },
   qtyRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 },
   qtyBtn: {
-    width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(31,51,38,0.06)',
+    width: 28, height: 28, borderRadius: Radius.pill, backgroundColor: 'rgba(31,51,38,0.06)',
     alignItems: 'center', justifyContent: 'center',
   },
   qtyBtnPlus: { backgroundColor: Palette.greenDk },

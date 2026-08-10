@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { Screen } from '@/components/Screen';
-import { Fonts, Palette } from '@/constants/theme';
+import { Tap } from '@/components/Tap';
+import { Fonts, Palette, Radius } from '@/constants/theme';
 
 export function AccessDenied() {
   const router = useRouter();
@@ -15,10 +16,10 @@ export function AccessDenied() {
         </View>
         <Text style={styles.title}>غير مصرّح بالوصول</Text>
         <Text style={styles.sub}>ليس لديك صلاحية لعرض هذه الصفحة</Text>
-        <Pressable style={styles.btn} onPress={() => router.back()}>
+        <Tap style={styles.btn} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={16} color="#fff" />
           <Text style={styles.btnTxt}>العودة</Text>
-        </Pressable>
+        </Tap>
       </View>
     </Screen>
   );
@@ -30,7 +31,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40, gap: 12,
   },
   iconWrap: {
-    width: 80, height: 80, borderRadius: 40,
+    width: 80, height: 80, borderRadius: Radius.pill,
     backgroundColor: Palette.cardA,
     alignItems: 'center', justifyContent: 'center',
     marginBottom: 8,
@@ -47,7 +48,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     flexDirection: 'row', alignItems: 'center', gap: 8,
     backgroundColor: Palette.greenDk,
-    paddingVertical: 12, paddingHorizontal: 24, borderRadius: 14,
+    paddingVertical: 12, paddingHorizontal: 24, borderRadius: Radius.md,
   },
   btnTxt: { fontSize: 14, color: '#fff', fontFamily: Fonts.arabicBold },
 });

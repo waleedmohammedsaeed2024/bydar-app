@@ -3,7 +3,6 @@ import { useRouter, type Href } from "expo-router";
 import { useMemo } from "react";
 import {
   ActivityIndicator,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,8 +12,9 @@ import {
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { Screen } from "@/components/Screen";
 import { ScreenHeader } from "@/components/ScreenHeader";
-import { Fonts, Palette, arDigits } from "@/constants/theme";
+import { Fonts, Palette, Radius, arDigits } from "@/constants/theme";
 import { useSalesOrders } from "@/features/sales/sales.hooks";
+import { Tap } from '@/components/Tap';
 
 type StatItem = {
   label: string;
@@ -152,13 +152,9 @@ const cs = StyleSheet.create({
   card: {
     marginHorizontal: 22,
     marginTop: 12,
-    borderRadius: 24,
+    borderRadius: Radius.xl,
     padding: 18,
     backgroundColor: Palette.greenDk,
-    shadowColor: "#1d3f2a",
-    shadowOpacity: 0.32,
-    shadowRadius: 28,
-    shadowOffset: { width: 0, height: 12 },
   },
   headRow: {
     flexDirection: "row",
@@ -183,18 +179,19 @@ const cs = StyleSheet.create({
     gap: 6,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 999,
+    borderRadius: Radius.pill,
     backgroundColor: "rgba(255,255,255,0.14)",
     borderWidth: 0.5,
     borderColor: "rgba(255,255,255,0.22)",
   },
-  liveDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#a8e0a8" },
+  liveDot: { width: 6, height: 6, borderRadius: Radius.pill, backgroundColor: "#a8e0a8" },
   liveTxt: { fontSize: 11, color: "#fff", fontFamily: Fonts.arabicBold },
   divider: {
     height: 1,
     backgroundColor: "rgba(255,255,255,0.14)",
     marginTop: 14,
     marginHorizontal: -18,
+    borderWidth: 1, borderColor: Palette.line,
   },
   statsRow: { flexDirection: "row" },
   stat: { flex: 1, padding: 14, alignItems: "flex-start", gap: 6 },
@@ -202,10 +199,11 @@ const cs = StyleSheet.create({
   statIcon: {
     width: 30,
     height: 30,
-    borderRadius: 10,
+    borderRadius: Radius.sm,
     backgroundColor: "rgba(255,255,255,0.14)",
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 1, borderColor: Palette.line,
   },
   statValue: {
     fontSize: 22,
@@ -238,12 +236,8 @@ const cs = StyleSheet.create({
 function ReportRow({ idx, r }: { idx: number; r: Report }) {
   const router = useRouter();
   return (
-    <Pressable
-      style={({ pressed }) => [
-        ls.row,
-        idx > 0 && ls.rowDivider,
-        pressed && { opacity: 0.85 },
-      ]}
+    <Tap
+      style={[ls.row, idx > 0 && ls.rowDivider]}
       onPress={() => router.push(r.href)}
     >
       <View style={[ls.icon, { backgroundColor: r.accent }]}>
@@ -264,17 +258,17 @@ function ReportRow({ idx, r }: { idx: number; r: Report }) {
         color={Palette.ink}
         style={{ opacity: 0.55 }}
       />
-    </Pressable>
+    </Tap>
   );
 }
 
 const ls = StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center", gap: 14, padding: 16 },
-  rowDivider: { borderTopWidth: 1, borderTopColor: Palette.lineStrong },
+  rowDivider: { borderTopWidth: 1, borderTopColor: Palette.line },
   icon: {
     width: 46,
     height: 46,
-    borderRadius: 14,
+    borderRadius: Radius.md,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -283,7 +277,7 @@ const ls = StyleSheet.create({
     backgroundColor: "rgba(45,90,63,0.10)",
     paddingHorizontal: 7,
     paddingVertical: 1,
-    borderRadius: 999,
+    borderRadius: Radius.pill,
   },
   numTxt: { fontSize: 11, color: Palette.green, fontFamily: Fonts.arabicBold },
   title: {
@@ -345,7 +339,8 @@ const out = StyleSheet.create({
   count: { fontSize: 11, color: Palette.inkSoft, fontFamily: Fonts.arabicBold },
   card: {
     backgroundColor: Palette.surface,
-    borderRadius: 20,
+    borderRadius: Radius.lg,
     overflow: "hidden",
+    borderWidth: 1, borderColor: Palette.line,
   },
 });

@@ -2,15 +2,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import {
-  Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView,
+  Alert, KeyboardAvoidingView, Platform, ScrollView,
   StyleSheet, Text, TextInput, View,
 } from 'react-native';
 import { z } from 'zod';
 
 import { AccessDenied } from '@/components/AccessDenied';
+import { Tap } from '@/components/Tap';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
-import { Fonts, Palette, arDigits, arMonths } from '@/constants/theme';
+import { Fonts, Palette, Radius, arDigits, arMonths } from '@/constants/theme';
 import { useItems } from '@/features/items/items.hooks';
 import { useSuppliers } from '@/features/partners/partners.hooks';
 import { PickerSheet } from '@/features/sales/components/PickerSheet';
@@ -165,25 +166,25 @@ export default function NewPurchaseScreen() {
           <View>
             <Text style={fieldStyles.label}>تاريخ الفاتورة</Text>
             <View style={dateStyles.row}>
-              <Pressable style={dateStyles.btn} onPress={() => shiftDate(-1)}>
+              <Tap style={dateStyles.btn} onPress={() => shiftDate(-1)}>
                 <Ionicons name="chevron-forward" size={16} color={Palette.ink} />
-              </Pressable>
+              </Tap>
               <View style={dateStyles.center}>
                 <Text style={dateStyles.value}>{arDate(date)}</Text>
                 {date === toISODate(new Date()) && <Text style={dateStyles.todayTag}>اليوم</Text>}
               </View>
-              <Pressable style={dateStyles.btn} onPress={() => shiftDate(1)}>
+              <Tap style={dateStyles.btn} onPress={() => shiftDate(1)}>
                 <Ionicons name="chevron-back" size={16} color={Palette.ink} />
-              </Pressable>
+              </Tap>
             </View>
           </View>
 
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>الأصناف ({arDigits(lines.length)})</Text>
-            <Pressable style={styles.addBtn} onPress={() => setShowItems(true)}>
+            <Tap style={styles.addBtn} onPress={() => setShowItems(true)}>
               <Ionicons name="add" size={14} color="#fff" />
               <Text style={styles.addTxt}>إضافة صنف</Text>
-            </Pressable>
+            </Tap>
           </View>
 
           {lines.length === 0 ? (
@@ -195,9 +196,9 @@ export default function NewPurchaseScreen() {
                 <View key={l.uid} style={lineStyles.card}>
                   <View style={lineStyles.row}>
                     <Text style={lineStyles.name} numberOfLines={1}>{l.item.item_name}</Text>
-                    <Pressable hitSlop={8} onPress={() => remove(l.uid)}>
-                      <Ionicons name="close-circle" size={20} color="#8a3e3e" />
-                    </Pressable>
+                    <Tap hitSlop={8} onPress={() => remove(l.uid)}>
+                      <Ionicons name="close-circle" size={20} color={Palette.danger} />
+                    </Tap>
                   </View>
 
                   {packs.length > 0 && (
@@ -205,12 +206,12 @@ export default function NewPurchaseScreen() {
                       {packs.map((p) => {
                         const sel = p.id === l.packaging?.id;
                         return (
-                          <Pressable
+                          <Tap
                             key={p.id}
                             onPress={() => update(l.uid, { packaging: p })}
                             style={[lineStyles.pkg, sel && lineStyles.pkgSel]}>
                             <Text style={[lineStyles.pkgTxt, sel && lineStyles.pkgTxtSel]}>{p.pack_arab}</Text>
-                          </Pressable>
+                          </Tap>
                         );
                       })}
                     </View>
@@ -218,11 +219,11 @@ export default function NewPurchaseScreen() {
 
                   <View style={lineStyles.qtyRow}>
                     <View style={lineStyles.qtyBox}>
-                      <Pressable
+                      <Tap
                         style={lineStyles.qtyBtn}
                         onPress={() => update(l.uid, { quantity: Math.max(1, Math.floor(l.quantity - 1)) })}>
                         <Text style={lineStyles.qtyBtnTxt}>−</Text>
-                      </Pressable>
+                      </Tap>
                       <TextInput
                         value={String(l.quantity)}
                         onChangeText={(t) => {
@@ -232,11 +233,11 @@ export default function NewPurchaseScreen() {
                         keyboardType="decimal-pad"
                         style={lineStyles.qtyInput}
                       />
-                      <Pressable
+                      <Tap
                         style={[lineStyles.qtyBtn, lineStyles.qtyBtnPlus]}
                         onPress={() => update(l.uid, { quantity: l.quantity + 1 })}>
                         <Text style={lineStyles.qtyBtnPlusTxt}>＋</Text>
-                      </Pressable>
+                      </Tap>
                     </View>
 
                     <View style={lineStyles.priceBox}>
@@ -271,7 +272,7 @@ export default function NewPurchaseScreen() {
         </ScrollView>
 
         <View style={styles.footer}>
-          <Pressable
+          <Tap
             disabled={create.isPending}
             style={[styles.btn, styles.btnPrimary, create.isPending && { opacity: 0.7 }]}
             onPress={submit}>
@@ -279,7 +280,7 @@ export default function NewPurchaseScreen() {
               {create.isPending ? 'جارٍ الحفظ...' : 'حفظ الفاتورة'}
             </Text>
             <Ionicons name="checkmark" size={16} color="#fff" />
-          </Pressable>
+          </Tap>
         </View>
       </KeyboardAvoidingView>
 
@@ -313,12 +314,12 @@ function FieldButton({
   return (
     <View>
       <Text style={fieldStyles.label}>{label}</Text>
-      <Pressable style={fieldStyles.field} onPress={onPress}>
+      <Tap style={fieldStyles.field} onPress={onPress}>
         <Text style={value ? fieldStyles.value : fieldStyles.placeholder}>
           {value ?? placeholder}
         </Text>
         <Ionicons name="chevron-back" size={14} color={Palette.inkSoft} />
-      </Pressable>
+      </Tap>
     </View>
   );
 }
@@ -346,7 +347,8 @@ const fieldStyles = StyleSheet.create({
   label: { fontSize: 12, color: Palette.inkSoft, fontFamily: Fonts.arabicMedium, marginBottom: 6 },
   field: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#fff', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 14,
+    backgroundColor: '#fff', borderRadius: Radius.md, paddingHorizontal: 14, paddingVertical: 14,
+    borderWidth: 1, borderColor: Palette.line,
   },
   value: { flex: 1, fontSize: 14, color: Palette.ink, fontFamily: Fonts.arabic, textAlign: 'right' },
   placeholder: { flex: 1, fontSize: 14, color: Palette.inkSoft, fontFamily: Fonts.arabic, textAlign: 'right' },
@@ -356,10 +358,11 @@ const fieldStyles = StyleSheet.create({
 const dateStyles = StyleSheet.create({
   row: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: '#fff', borderRadius: 14, padding: 6,
+    backgroundColor: '#fff', borderRadius: Radius.md, padding: 6,
+    borderWidth: 1, borderColor: Palette.line,
   },
   btn: {
-    width: 38, height: 38, borderRadius: 12,
+    width: 38, height: 38, borderRadius: Radius.sm,
     backgroundColor: 'rgba(31,51,38,0.06)',
     alignItems: 'center', justifyContent: 'center',
   },
@@ -370,18 +373,18 @@ const dateStyles = StyleSheet.create({
 
 const lineStyles = StyleSheet.create({
   empty: { textAlign: 'center', color: Palette.inkSoft, fontFamily: Fonts.arabic, padding: 24 },
-  card: { backgroundColor: '#fff', borderRadius: 16, padding: 14, gap: 10 },
+  card: { backgroundColor: '#fff', borderRadius: Radius.md, padding: 14, gap: 10, borderWidth: 1, borderColor: Palette.line },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   name: { fontSize: 15, color: Palette.ink, fontFamily: Fonts.arabicBold, flex: 1 },
   pkgs: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  pkg: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, borderWidth: 1, borderColor: Palette.lineStrong },
+  pkg: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: Radius.pill, borderWidth: 1, borderColor: Palette.lineStrong },
   pkgSel: { backgroundColor: Palette.greenDk, borderColor: Palette.greenDk },
   pkgTxt: { fontSize: 11, color: Palette.ink, fontFamily: Fonts.arabicBold },
   pkgTxtSel: { color: '#fff' },
   qtyRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 8, borderTopWidth: 1, borderTopColor: Palette.line },
   qtyBox: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   qtyBtn: {
-    width: 30, height: 30, borderRadius: 15, backgroundColor: 'rgba(31,51,38,0.06)',
+    width: 30, height: 30, borderRadius: Radius.pill, backgroundColor: 'rgba(31,51,38,0.06)',
     alignItems: 'center', justifyContent: 'center',
   },
   qtyBtnPlus: { backgroundColor: Palette.greenDk },
@@ -393,7 +396,7 @@ const lineStyles = StyleSheet.create({
   },
   priceBox: {
     flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: 'rgba(31,51,38,0.04)', borderRadius: 10,
+    backgroundColor: 'rgba(31,51,38,0.04)', borderRadius: Radius.sm,
     paddingHorizontal: 10, paddingVertical: 6,
   },
   priceLabel: { fontSize: 11, color: Palette.inkSoft, fontFamily: Fonts.arabicMedium },
@@ -419,13 +422,13 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 14, color: Palette.ink, fontFamily: Fonts.arabicBold },
   addBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
-    backgroundColor: Palette.greenDk, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999,
+    backgroundColor: Palette.greenDk, paddingHorizontal: 10, paddingVertical: 6, borderRadius: Radius.pill,
   },
   addTxt: { color: '#fff', fontSize: 11, fontFamily: Fonts.arabicBold },
 
   grandTotalRow: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    backgroundColor: Palette.cardA, borderRadius: 16, padding: 14, marginTop: 4,
+    backgroundColor: Palette.cardA, borderRadius: Radius.md, padding: 14, marginTop: 4,
   },
   grandTotalLabel: { fontSize: 13, color: Palette.greenDk, fontFamily: Fonts.arabicBold },
   grandTotalValue: { fontSize: 16, color: Palette.greenDk, fontFamily: Fonts.arabicBold },
@@ -438,7 +441,7 @@ const styles = StyleSheet.create({
   },
   btn: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    paddingVertical: 14, borderRadius: 16,
+    paddingVertical: 14, borderRadius: Radius.md,
   },
   btnPrimary: { backgroundColor: Palette.greenDk },
   btnPrimaryTxt: { color: '#fff', fontSize: 14, fontFamily: Fonts.arabicBold },

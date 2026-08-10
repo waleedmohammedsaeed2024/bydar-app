@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { BottomSheet } from '@/components/BottomSheet';
-import { Fonts, Palette, arDigits } from '@/constants/theme';
+import { Tap } from '@/components/Tap';
+import { Fonts, Palette, Radius, arDigits } from '@/constants/theme';
 import { supabase } from '@/lib/supabase';
 import { CLIENT_ID } from '@/lib/tenant';
 import { useAuthStore } from '@/stores/auth';
@@ -74,12 +75,12 @@ function Remarks() {
           multiline
           style={rs.input}
         />
-        <Pressable
+        <Tap
           onPress={send}
           disabled={!text.trim() || saving}
           style={[rs.send, (!text.trim() || saving) && rs.sendDisabled]}>
           <Ionicons name="send" size={14} color="#fff" />
-        </Pressable>
+        </Tap>
       </View>
     </View>
   );
@@ -88,14 +89,15 @@ function Remarks() {
 const rs = StyleSheet.create({
   box: {
     flexDirection: 'row', alignItems: 'flex-end', gap: 8,
-    backgroundColor: '#fff', borderRadius: 16, padding: 10,
+    backgroundColor: '#fff', borderRadius: Radius.md, padding: 10,
+    borderWidth: 1, borderColor: Palette.line,
   },
   input: {
     flex: 1, minHeight: 60, fontSize: 13, color: Palette.ink,
     fontFamily: Fonts.arabic, textAlign: 'right', textAlignVertical: 'top',
   },
   send: {
-    width: 38, height: 38, borderRadius: 19, backgroundColor: Palette.greenDk,
+    width: 38, height: 38, borderRadius: Radius.pill, backgroundColor: Palette.greenDk,
     alignItems: 'center', justifyContent: 'center',
   },
   sendDisabled: { backgroundColor: 'rgba(31,51,38,0.18)' },
@@ -117,12 +119,12 @@ function Survey() {
 
 const ss = StyleSheet.create({
   wrap: {
-    marginHorizontal: 14, marginBottom: 16, padding: 14, borderRadius: 14,
+    marginHorizontal: 14, marginBottom: 16, padding: 14, borderRadius: Radius.md,
     backgroundColor: 'rgba(31,51,38,0.05)', borderWidth: 1, borderColor: 'rgba(31,51,38,0.18)',
     borderStyle: 'dashed', flexDirection: 'row', alignItems: 'center', gap: 12,
   },
   iconWrap: {
-    width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(31,51,38,0.10)',
+    width: 36, height: 36, borderRadius: Radius.pill, backgroundColor: 'rgba(31,51,38,0.10)',
     alignItems: 'center', justifyContent: 'center',
   },
   title: { fontSize: 13, color: Palette.ink, fontFamily: Fonts.arabicBold },
@@ -158,14 +160,14 @@ function Evaluation() {
           {[5, 4, 3, 2, 1].map((i) => {
             const filled = i <= stars;
             return (
-              <Pressable key={i} style={es.starBtn} onPress={() => { setStars(i); setSaved(false); }}>
+              <Tap key={i} style={es.starBtn} onPress={() => { setStars(i); setSaved(false); }}>
                 <Ionicons
                   name={filled ? 'star' : 'star-outline'}
                   size={28}
                   color={filled ? '#f5b81c' : 'rgba(31,51,38,0.35)'}
                 />
                 <Text style={[es.num, filled && es.numFilled]}>{arDigits(i)}</Text>
-              </Pressable>
+              </Tap>
             );
           })}
         </View>
@@ -177,12 +179,12 @@ function Evaluation() {
           </View>
         )}
         {stars > 0 && !saved && (
-          <Pressable
+          <Tap
             onPress={submit}
             disabled={saving}
             style={[es.submitBtn, saving && es.submitBtnDisabled]}>
             <Text style={es.submitTxt}>{saving ? 'جارٍ الحفظ...' : 'حفظ التقييم'}</Text>
-          </Pressable>
+          </Tap>
         )}
         {saved && (
           <View style={es.savedRow}>
@@ -196,19 +198,19 @@ function Evaluation() {
 }
 
 const es = StyleSheet.create({
-  card: { backgroundColor: '#fff', borderRadius: 16, padding: 14 },
+  card: { backgroundColor: '#fff', borderRadius: Radius.md, padding: 14, borderWidth: 1, borderColor: Palette.line },
   hint: { fontSize: 12, color: Palette.inkSoft, fontFamily: Fonts.arabic, textAlign: 'right', marginBottom: 10 },
   row: { flexDirection: 'row', justifyContent: 'space-between' },
   starBtn: { flex: 1, alignItems: 'center', gap: 3, paddingVertical: 6 },
   num: { fontSize: 10, color: Palette.inkSoft, fontFamily: Fonts.arabicBold, opacity: 0.7 },
   numFilled: { color: '#d59a0b', opacity: 1 },
   result: {
-    marginTop: 12, padding: 10, borderRadius: 10,
+    marginTop: 12, padding: 10, borderRadius: Radius.sm,
     backgroundColor: 'rgba(45,90,63,0.08)', alignItems: 'center',
   },
   resultTxt: { fontSize: 12, color: Palette.green, fontFamily: Fonts.arabicBold },
   submitBtn: {
-    marginTop: 12, paddingVertical: 10, borderRadius: 10,
+    marginTop: 12, paddingVertical: 10, borderRadius: Radius.sm,
     backgroundColor: Palette.greenDk, alignItems: 'center',
   },
   submitBtnDisabled: { opacity: 0.5 },
@@ -222,7 +224,7 @@ function Inbox() {
     <View style={{ paddingHorizontal: 14, paddingBottom: 16 }}>
       <View style={is.card}>
         {INBOX.map((m, i) => (
-          <Pressable
+          <Tap
             key={m.id}
             onPress={() => Alert.alert(m.from, m.subject)}
             style={[is.row, i > 0 && is.rowDivider]}>
@@ -234,7 +236,7 @@ function Inbox() {
               <Text style={is.meta}>{m.from} · {m.time}</Text>
             </View>
             <Ionicons name="chevron-back" size={12} color={Palette.inkSoft} />
-          </Pressable>
+          </Tap>
         ))}
       </View>
     </View>
@@ -242,10 +244,10 @@ function Inbox() {
 }
 
 const is = StyleSheet.create({
-  card: { backgroundColor: '#fff', borderRadius: 16, overflow: 'hidden' },
+  card: { backgroundColor: '#fff', borderRadius: Radius.md, overflow: 'hidden', borderWidth: 1, borderColor: Palette.line },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 11 },
   rowDivider: { borderTopWidth: 1, borderTopColor: 'rgba(31,51,38,0.10)' },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: 'transparent' },
+  dot: { width: 8, height: 8, borderRadius: Radius.pill, backgroundColor: 'transparent' },
   dotUnread: { backgroundColor: Palette.green },
   subject: { fontSize: 12, color: Palette.ink, fontFamily: Fonts.arabicMedium },
   subjectUnread: { fontFamily: Fonts.arabicBold },
@@ -269,7 +271,7 @@ export function ReviewsModal({ visible, onClose }: { visible: boolean; onClose: 
             const isOpen = expanded === o.key;
             return (
               <View key={o.n} style={[i > 0 && ms.itemDivider, o.disabled && { opacity: 0.55 }]}>
-                <Pressable
+                <Tap
                   disabled={o.disabled}
                   onPress={() => setExpanded(isOpen ? null : o.key)}
                   style={[ms.header, isOpen && ms.headerOpen]}>
@@ -295,7 +297,7 @@ export function ReviewsModal({ visible, onClose }: { visible: boolean; onClose: 
                     color={Palette.ink}
                     style={{ opacity: 0.55 }}
                   />
-                </Pressable>
+                </Tap>
                 {isOpen && <Body k={o.key} />}
               </View>
             );
@@ -308,21 +310,21 @@ export function ReviewsModal({ visible, onClose }: { visible: boolean; onClose: 
 
 const ms = StyleSheet.create({
   wrap: { paddingHorizontal: 22, paddingTop: 4 },
-  list: { backgroundColor: Palette.surface, borderRadius: 20, overflow: 'hidden' },
-  itemDivider: { borderTopWidth: 1, borderTopColor: Palette.lineStrong },
+  list: { backgroundColor: Palette.surface, borderRadius: Radius.lg, overflow: 'hidden', borderWidth: 1, borderColor: Palette.line },
+  itemDivider: { borderTopWidth: 1, borderTopColor: Palette.line },
   header: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 14 },
   headerOpen: { backgroundColor: 'rgba(45,90,63,0.06)' },
   icon: {
-    width: 44, height: 44, borderRadius: 14,
+    width: 44, height: 44, borderRadius: Radius.md,
     alignItems: 'center', justifyContent: 'center',
   },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
-  num: { backgroundColor: 'rgba(45,90,63,0.10)', paddingHorizontal: 7, paddingVertical: 1, borderRadius: 999 },
+  num: { backgroundColor: 'rgba(45,90,63,0.10)', paddingHorizontal: 7, paddingVertical: 1, borderRadius: Radius.pill },
   numTxt: { fontSize: 11, color: Palette.green, fontFamily: Fonts.arabicBold },
   label: { fontSize: 14, color: Palette.ink, fontFamily: Fonts.arabicBold, letterSpacing: -0.2 },
-  badge: { backgroundColor: '#c0492e', paddingHorizontal: 7, paddingVertical: 1, borderRadius: 999 },
+  badge: { backgroundColor: '#c0492e', paddingHorizontal: 7, paddingVertical: 1, borderRadius: Radius.pill },
   badgeTxt: { fontSize: 10, color: '#fff', fontFamily: Fonts.arabicBold },
-  disabledTag: { backgroundColor: 'rgba(31,51,38,0.12)', paddingHorizontal: 7, paddingVertical: 1, borderRadius: 999 },
+  disabledTag: { backgroundColor: 'rgba(31,51,38,0.12)', paddingHorizontal: 7, paddingVertical: 1, borderRadius: Radius.pill },
   disabledTagTxt: { fontSize: 10, color: Palette.inkSoft, fontFamily: Fonts.arabicBold },
   desc: { fontSize: 11, color: Palette.inkSoft, fontFamily: Fonts.arabic, marginTop: 4, lineHeight: 16 },
 });

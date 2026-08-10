@@ -2,12 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-  Alert, KeyboardAvoidingView, Modal, Platform, Pressable,
-  StyleSheet, Text, TextInput, View,
+  Alert, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View,
 } from 'react-native';
 
 import { Screen } from '@/components/Screen';
-import { Fonts, Palette } from '@/constants/theme';
+import { Tap } from '@/components/Tap';
+import { Fonts, Palette, Radius } from '@/constants/theme';
 import { type AppRole, ROLE_LABELS } from '@/lib/permissions';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/stores/auth';
@@ -38,7 +38,7 @@ export default function AccountScreen() {
         <Text style={styles.role}>{role ?? 'مستخدم'}</Text>
 
         <View style={styles.card}>
-          <Pressable style={styles.row} onPress={() => setShowPwd(true)}>
+          <Tap style={styles.row} onPress={() => setShowPwd(true)}>
             <View style={styles.rowLeft}>
               <View style={styles.rowIcon}>
                 <Ionicons name="key-outline" size={18} color={Palette.greenDk} />
@@ -49,12 +49,12 @@ export default function AccountScreen() {
               </View>
             </View>
             <Ionicons name="chevron-back" size={16} color={Palette.inkSoft} />
-          </Pressable>
+          </Tap>
 
           {isAdmin && (
             <>
               <View style={styles.divider} />
-              <Pressable style={styles.row} onPress={() => setShowAssignRole(true)}>
+              <Tap style={styles.row} onPress={() => setShowAssignRole(true)}>
                 <View style={styles.rowLeft}>
                   <View style={[styles.rowIcon, { backgroundColor: '#e8f0fe' }]}>
                     <Ionicons name="shield-checkmark-outline" size={18} color="#1a56db" />
@@ -65,9 +65,9 @@ export default function AccountScreen() {
                   </View>
                 </View>
                 <Ionicons name="chevron-back" size={16} color={Palette.inkSoft} />
-              </Pressable>
+              </Tap>
               <View style={styles.divider} />
-              <Pressable style={styles.row} onPress={() => setShowReset(true)}>
+              <Tap style={styles.row} onPress={() => setShowReset(true)}>
                 <View style={styles.rowLeft}>
                   <View style={[styles.rowIcon, { backgroundColor: '#fdecea' }]}>
                     <Ionicons name="refresh-outline" size={18} color="#b03030" />
@@ -78,15 +78,15 @@ export default function AccountScreen() {
                   </View>
                 </View>
                 <Ionicons name="chevron-back" size={16} color={Palette.inkSoft} />
-              </Pressable>
+              </Tap>
             </>
           )}
         </View>
 
-        <Pressable style={styles.signOut} onPress={onSignOut}>
+        <Tap style={styles.signOut} onPress={onSignOut}>
           <Ionicons name="log-out-outline" size={18} color="#fff" />
           <Text style={styles.signOutTxt}>تسجيل الخروج</Text>
-        </Pressable>
+        </Tap>
       </View>
 
       <ChangePasswordSheet visible={showPwd} onClose={() => setShowPwd(false)} />
@@ -164,9 +164,9 @@ function AssignRoleSheet({ visible, onClose }: { visible: boolean; onClose: () =
               <Text style={sheet.eyebrow}>الإدارة</Text>
               <Text style={sheet.title}>تعيين دور مستخدم</Text>
             </View>
-            <Pressable onPress={close} style={sheet.close} hitSlop={8}>
+            <Tap onPress={close} style={sheet.close} hitSlop={8}>
               <Ionicons name="close" size={16} color={Palette.ink} />
-            </Pressable>
+            </Tap>
           </View>
 
           <View style={sheet.fields}>
@@ -189,20 +189,20 @@ function AssignRoleSheet({ visible, onClose }: { visible: boolean; onClose: () =
               {ROLES.map(([key, label]) => {
                 const active = selected === key;
                 return (
-                  <Pressable
+                  <Tap
                     key={key}
                     style={[sheet.roleChip, active && sheet.roleChipActive]}
                     onPress={() => setSelected(key)}>
                     <Text style={[sheet.roleChipTxt, active && sheet.roleChipTxtActive]}>
                       {label}
                     </Text>
-                  </Pressable>
+                  </Tap>
                 );
               })}
             </View>
           </View>
 
-          <Pressable
+          <Tap
             disabled={busy}
             style={[sheet.submit, { backgroundColor: '#1a56db' }, busy && { opacity: 0.7 }]}
             onPress={submit}>
@@ -210,7 +210,7 @@ function AssignRoleSheet({ visible, onClose }: { visible: boolean; onClose: () =
               {busy ? 'جارٍ التعيين...' : 'تعيين الدور'}
             </Text>
             <Ionicons name="shield-checkmark-outline" size={16} color="#fff" />
-          </Pressable>
+          </Tap>
         </View>
       </KeyboardAvoidingView>
     </Modal>
@@ -276,9 +276,9 @@ function ResetPasswordSheet({ visible, onClose }: { visible: boolean; onClose: (
               <Text style={sheet.eyebrow}>الإدارة</Text>
               <Text style={sheet.title}>إعادة تعيين كلمة المرور</Text>
             </View>
-            <Pressable onPress={close} style={sheet.close} hitSlop={8}>
+            <Tap onPress={close} style={sheet.close} hitSlop={8}>
               <Ionicons name="close" size={16} color={Palette.ink} />
-            </Pressable>
+            </Tap>
           </View>
 
           <View style={sheet.fields}>
@@ -298,7 +298,7 @@ function ResetPasswordSheet({ visible, onClose }: { visible: boolean; onClose: (
             <Text style={sheet.hint}>ستُعيَّن كلمة المرور إلى: Aa123456</Text>
           </View>
 
-          <Pressable
+          <Tap
             disabled={busy}
             style={[sheet.submit, { backgroundColor: '#b03030' }, busy && { opacity: 0.7 }]}
             onPress={submit}>
@@ -306,7 +306,7 @@ function ResetPasswordSheet({ visible, onClose }: { visible: boolean; onClose: (
               {busy ? 'جارٍ التعيين...' : 'إعادة التعيين'}
             </Text>
             <Ionicons name="refresh" size={16} color="#fff" />
-          </Pressable>
+          </Tap>
         </View>
       </KeyboardAvoidingView>
     </Modal>
@@ -364,9 +364,9 @@ function ChangePasswordSheet({ visible, onClose }: { visible: boolean; onClose: 
               <Text style={sheet.eyebrow}>الأمان</Text>
               <Text style={sheet.title}>تغيير كلمة المرور</Text>
             </View>
-            <Pressable onPress={close} style={sheet.close} hitSlop={8}>
+            <Tap onPress={close} style={sheet.close} hitSlop={8}>
               <Ionicons name="close" size={16} color={Palette.ink} />
-            </Pressable>
+            </Tap>
           </View>
 
           <View style={sheet.fields}>
@@ -396,7 +396,7 @@ function ChangePasswordSheet({ visible, onClose }: { visible: boolean; onClose: 
             />
           </View>
 
-          <Pressable
+          <Tap
             disabled={pending}
             style={[sheet.submit, pending && { opacity: 0.7 }]}
             onPress={submit}>
@@ -404,7 +404,7 @@ function ChangePasswordSheet({ visible, onClose }: { visible: boolean; onClose: 
               {pending ? 'جارٍ الحفظ...' : 'حفظ كلمة المرور'}
             </Text>
             <Ionicons name="checkmark" size={16} color="#fff" />
-          </Pressable>
+          </Tap>
         </View>
       </KeyboardAvoidingView>
     </Modal>
@@ -431,13 +431,13 @@ function PasswordField({
           autoCorrect={false}
           style={sheet.inputTxt}
         />
-        <Pressable hitSlop={8} onPress={toggle}>
+        <Tap hitSlop={8} onPress={toggle}>
           <Ionicons
             name={visible ? 'eye-off-outline' : 'eye-outline'}
             size={18}
             color={Palette.inkSoft}
           />
-        </Pressable>
+        </Tap>
       </View>
     </View>
   );
@@ -446,14 +446,15 @@ function PasswordField({
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: 'center', paddingTop: 48, paddingHorizontal: 22, paddingBottom: 130, gap: 12 },
   avatar: {
-    width: 96, height: 96, borderRadius: 48, backgroundColor: Palette.cardA,
+    width: 96, height: 96, borderRadius: Radius.pill, backgroundColor: Palette.cardA,
     alignItems: 'center', justifyContent: 'center', marginBottom: 8,
   },
   email: { fontSize: 16, color: Palette.ink, fontFamily: Fonts.arabicBold },
   role: { fontSize: 12, color: Palette.inkSoft, fontFamily: Fonts.arabicMedium },
   card: {
-    width: '100%', marginTop: 16, backgroundColor: Palette.surface, borderRadius: 20,
+    width: '100%', marginTop: 16, backgroundColor: Palette.surface, borderRadius: Radius.lg,
     paddingVertical: 4,
+    borderWidth: 1, borderColor: Palette.line,
   },
   row: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
@@ -461,7 +462,7 @@ const styles = StyleSheet.create({
   },
   rowLeft: { flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 },
   rowIcon: {
-    width: 40, height: 40, borderRadius: 14, backgroundColor: Palette.cardA,
+    width: 40, height: 40, borderRadius: Radius.md, backgroundColor: Palette.cardA,
     alignItems: 'center', justifyContent: 'center',
   },
   rowLabel: { fontSize: 14, color: Palette.ink, fontFamily: Fonts.arabicBold },
@@ -469,7 +470,7 @@ const styles = StyleSheet.create({
   divider: { height: 1, backgroundColor: Palette.line, marginHorizontal: 14 },
   signOut: {
     marginTop: 'auto', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    backgroundColor: Palette.greenDk, paddingVertical: 14, paddingHorizontal: 28, borderRadius: 16,
+    backgroundColor: Palette.greenDk, paddingVertical: 14, paddingHorizontal: 28, borderRadius: Radius.md,
   },
   signOutTxt: { color: '#fff', fontSize: 14, fontFamily: Fonts.arabicBold },
 });
@@ -483,7 +484,7 @@ const sheet = StyleSheet.create({
     paddingBottom: 24,
   },
   grabberWrap: { alignItems: 'center', paddingTop: 10 },
-  grabber: { width: 42, height: 5, borderRadius: 999, backgroundColor: 'rgba(31,51,38,0.18)' },
+  grabber: { width: 42, height: 5, borderRadius: Radius.pill, backgroundColor: 'rgba(31,51,38,0.18)' },
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 22, paddingTop: 14, paddingBottom: 4,
@@ -491,14 +492,15 @@ const sheet = StyleSheet.create({
   eyebrow: { fontSize: 11, color: Palette.inkSoft, fontFamily: Fonts.arabicMedium },
   title: { fontSize: 22, color: Palette.ink, fontFamily: Fonts.arabicBold, letterSpacing: -0.4 },
   close: {
-    width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(31,51,38,0.08)',
+    width: 36, height: 36, borderRadius: Radius.pill, backgroundColor: 'rgba(31,51,38,0.08)',
     alignItems: 'center', justifyContent: 'center',
   },
   fields: { padding: 22, gap: 12 },
   label: { fontSize: 12, color: Palette.inkSoft, fontFamily: Fonts.arabicMedium, marginBottom: 6 },
   input: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: '#fff', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12,
+    backgroundColor: '#fff', borderRadius: Radius.md, paddingHorizontal: 14, paddingVertical: 12,
+    borderWidth: 1, borderColor: Palette.line,
   },
   inputTxt: {
     flex: 1, fontSize: 14, color: Palette.ink, fontFamily: Fonts.arabic,
@@ -507,13 +509,13 @@ const sheet = StyleSheet.create({
   submit: {
     marginHorizontal: 22, marginBottom: 6,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    backgroundColor: Palette.greenDk, paddingVertical: 14, borderRadius: 16,
+    backgroundColor: Palette.greenDk, paddingVertical: 14, borderRadius: Radius.md,
   },
   submitTxt: { color: '#fff', fontSize: 14, fontFamily: Fonts.arabicBold },
   hint: { fontSize: 11, color: Palette.inkSoft, fontFamily: Fonts.arabicMedium, marginTop: 6, textAlign: 'center' },
   roleGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   roleChip: {
-    paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20,
+    paddingHorizontal: 14, paddingVertical: 8, borderRadius: Radius.lg,
     backgroundColor: 'rgba(31,51,38,0.06)', borderWidth: 1.5, borderColor: 'transparent',
   },
   roleChipActive: { backgroundColor: '#e8f0fe', borderColor: '#1a56db' },

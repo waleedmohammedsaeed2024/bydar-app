@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import type { OrderStatus } from '@/lib/database.types';
 import { ORDER_STATUS_COLOR, ORDER_STATUS_LABEL } from '@/lib/utils';
-import { Fonts } from '@/constants/theme';
+import { Fonts, Radius } from '@/constants/theme';
 
 export function StatusPill({ status, size = 'sm' }: { status: OrderStatus; size?: 'sm' | 'md' }) {
   const color = ORDER_STATUS_COLOR[status];
@@ -16,6 +16,6 @@ export function StatusPill({ status, size = 'sm' }: { status: OrderStatus; size?
 }
 
 const styles = StyleSheet.create({
-  pill: { paddingHorizontal: 8, borderRadius: 999, alignSelf: 'flex-start' },
+  pill: { paddingHorizontal: 8, borderRadius: Radius.pill, alignSelf: 'flex-start' },
   txt: { fontFamily: Fonts.arabicBold },
 });

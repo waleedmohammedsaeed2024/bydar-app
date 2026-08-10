@@ -2,14 +2,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-  Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView,
+  Alert, KeyboardAvoidingView, Platform, ScrollView,
   StyleSheet, Text, TextInput, View,
 } from 'react-native';
 import { z } from 'zod';
 
 import { Screen } from '@/components/Screen';
+import { Tap } from '@/components/Tap';
 import { ScreenHeader } from '@/components/ScreenHeader';
-import { Fonts, Palette } from '@/constants/theme';
+import { Fonts, Palette, Radius } from '@/constants/theme';
 import { useCreateCustomer } from '@/features/partners/partners.hooks';
 import { CLIENT_ID } from '@/lib/tenant';
 
@@ -76,13 +77,13 @@ export default function NewCustomerScreen() {
         </ScrollView>
 
         <View style={styles.footer}>
-          <Pressable
+          <Tap
             disabled={create.isPending}
             style={[styles.btn, create.isPending && { opacity: 0.7 }]}
             onPress={submit}>
             <Text style={styles.btnTxt}>{create.isPending ? 'جارٍ الحفظ...' : 'حفظ الزبون'}</Text>
             <Ionicons name="checkmark" size={16} color="#fff" />
-          </Pressable>
+          </Tap>
         </View>
       </KeyboardAvoidingView>
     </Screen>
@@ -104,7 +105,8 @@ const styles = StyleSheet.create({
   body: { padding: 22, paddingBottom: 120, gap: 12 },
   label: { fontSize: 12, color: Palette.inkSoft, fontFamily: Fonts.arabicMedium, marginBottom: 6 },
   field: {
-    backgroundColor: '#fff', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 14,
+    backgroundColor: '#fff', borderRadius: Radius.md, paddingHorizontal: 14, paddingVertical: 14,
+    borderWidth: 1, borderColor: Palette.line,
   },
   input: {
     fontSize: 14, color: Palette.ink, fontFamily: Fonts.arabic, textAlign: 'right', padding: 0,
@@ -116,7 +118,7 @@ const styles = StyleSheet.create({
   },
   btn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    paddingVertical: 14, borderRadius: 16, backgroundColor: Palette.greenDk,
+    paddingVertical: 14, borderRadius: Radius.md, backgroundColor: Palette.greenDk,
   },
   btnTxt: { color: '#fff', fontSize: 14, fontFamily: Fonts.arabicBold },
 });

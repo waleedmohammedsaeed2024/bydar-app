@@ -19,6 +19,7 @@ import "react-native-reanimated";
 import "react-native-url-polyfill/auto";
 
 import { SplashScreenView } from "@/components/SplashScreenView";
+import { Palette } from "@/constants/theme";
 
 import { useColorScheme } from "@/components/useColorScheme";
 import { useNewOrderWatcher } from "@/features/sales/useNewOrderWatcher";
@@ -94,7 +95,14 @@ function RootLayoutNav() {
     >
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <NewOrderWatcher />
-        <Stack screenOptions={{ headerShown: false }}>
+        {/* Screens share the app background so pushes don't flash white. */}
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            animation: "slide_from_right",
+            contentStyle: { backgroundColor: Palette.bgTop },
+          }}
+        >
           <Stack.Screen name="login" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="customers" />

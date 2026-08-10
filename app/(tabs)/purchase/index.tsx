@@ -2,13 +2,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import {
-  ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View,
+  ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View,
 } from 'react-native';
 
 import { AccessDenied } from '@/components/AccessDenied';
+import { Tap } from '@/components/Tap';
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { Screen } from '@/components/Screen';
-import { Fonts, Palette, arDigits, arMonths } from '@/constants/theme';
+import { Fonts, Palette, Radius, arDigits, arMonths } from '@/constants/theme';
 import { usePurchaseInvoices } from '@/features/purchases/purchases.hooks';
 import { usePermissions } from '@/hooks/usePermissions';
 import type { PurchaseInvoice, PurchaseInvoiceItem } from '@/lib/database.types';
@@ -90,14 +91,14 @@ export default function PurchaseTab() {
           <Text style={styles.noticeTxt}>
             تمت إضافة {arDigits(newPurchaseIds.length)} فاتورة شراء جديدة
           </Text>
-          <Pressable hitSlop={8} onPress={clearPurchases}>
+          <Tap hitSlop={8} onPress={clearPurchases}>
             <Ionicons name="close" size={14} color={Palette.greenDk} />
-          </Pressable>
+          </Tap>
         </View>
       )}
 
       {can('create_purchase') && (
-        <Pressable style={styles.newBtn} onPress={() => router.push('/purchase/new')}>
+        <Tap style={styles.newBtn} onPress={() => router.push('/purchase/new')}>
           <View style={styles.newIcon}>
             <Ionicons name="add" size={20} color="#fff" />
           </View>
@@ -106,7 +107,7 @@ export default function PurchaseTab() {
             <Text style={styles.newSub}>أضف فاتورة من مورد بأصناف وكميات وأسعار</Text>
           </View>
           <Ionicons name="chevron-back" size={16} color={Palette.inkSoft} />
-        </Pressable>
+        </Tap>
       )}
 
       <View style={styles.searchWrap}>
@@ -146,13 +147,9 @@ export default function PurchaseTab() {
                   const total = invoiceTotal(inv.purchase_invoice_item);
                   const linesCount = (inv.purchase_invoice_item ?? []).filter((l) => !l.deleted_at).length;
                   return (
-                    <Pressable
+                    <Tap
                       key={inv.id}
-                      style={({ pressed }) => [
-                        styles.row,
-                        i > 0 && styles.rowDivider,
-                        pressed && styles.rowPressed,
-                      ]}
+                      style={[styles.row, i > 0 && styles.rowDivider]}
                       onPress={() => router.push({ pathname: '/purchase/[id]', params: { id: inv.id } })}>
                       <View style={styles.rowIcon}>
                         <Ionicons name="receipt-outline" size={18} color={Palette.greenDk} />
@@ -176,7 +173,7 @@ export default function PurchaseTab() {
                       </View>
                       <Text style={styles.rowTotal}>{formatCurrency(total)}</Text>
                       <Ionicons name="chevron-back" size={14} color={Palette.inkSoft} />
-                    </Pressable>
+                    </Tap>
                   );
                 })}
               </View>
@@ -200,18 +197,17 @@ const styles = StyleSheet.create({
     marginHorizontal: 22, marginTop: 10,
     flexDirection: 'row', alignItems: 'center', gap: 8,
     backgroundColor: 'rgba(46, 113, 75, 0.12)',
-    borderRadius: 14, paddingHorizontal: 12, paddingVertical: 8,
+    borderRadius: Radius.md, paddingHorizontal: 12, paddingVertical: 8,
   },
   noticeTxt: { flex: 1, color: Palette.greenDk, fontSize: 12, fontFamily: Fonts.arabicBold },
 
   newBtn: {
     marginHorizontal: 22, marginTop: 12,
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: Palette.cardA, borderRadius: 18, padding: 14,
-    shadowColor: '#1f3326', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 3 },
+    backgroundColor: Palette.cardA, borderRadius: Radius.lg, padding: 14,
   },
   newIcon: {
-    width: 40, height: 40, borderRadius: 20, backgroundColor: Palette.greenDk,
+    width: 40, height: 40, borderRadius: Radius.pill, backgroundColor: Palette.greenDk,
     alignItems: 'center', justifyContent: 'center',
   },
   newTitle: { fontSize: 15, color: Palette.greenDk, fontFamily: Fonts.arabicBold, letterSpacing: -0.2 },
@@ -220,19 +216,19 @@ const styles = StyleSheet.create({
   searchWrap: { paddingHorizontal: 22, paddingTop: 12 },
   search: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: Palette.surface, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10,
+    backgroundColor: Palette.surface, borderRadius: Radius.md, paddingHorizontal: 14, paddingVertical: 10,
+    borderWidth: 1, borderColor: Palette.line,
   },
   input: { flex: 1, fontSize: 13, color: Palette.ink, fontFamily: Fonts.arabic, textAlign: 'right', padding: 0 },
 
   listWrap: { paddingHorizontal: 22, paddingTop: 14, paddingBottom: 130 },
   group: { marginBottom: 14 },
   groupLabel: { fontSize: 12, color: Palette.inkSoft, fontFamily: Fonts.arabicBold, marginBottom: 6, paddingHorizontal: 4 },
-  groupCard: { backgroundColor: Palette.surface, borderRadius: 20, overflow: 'hidden' },
+  groupCard: { backgroundColor: Palette.surface, borderRadius: Radius.lg, overflow: 'hidden', borderWidth: 1, borderColor: Palette.line },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 },
   rowDivider: { borderTopWidth: 1, borderTopColor: Palette.line },
-  rowPressed: { backgroundColor: 'rgba(31,51,38,0.04)' },
   rowIcon: {
-    width: 40, height: 40, borderRadius: 14, backgroundColor: Palette.cardA,
+    width: 40, height: 40, borderRadius: Radius.md, backgroundColor: Palette.cardA,
     alignItems: 'center', justifyContent: 'center',
   },
   rowTop: { flexDirection: 'row', alignItems: 'center', gap: 6 },
@@ -240,11 +236,11 @@ const styles = StyleSheet.create({
   rowMeta: { fontSize: 11, color: Palette.inkSoft, fontFamily: Fonts.arabic, marginTop: 2 },
   rowTotal: { fontSize: 13, color: Palette.greenDk, fontFamily: Fonts.arabicBold },
   newPill: {
-    backgroundColor: Palette.greenDk, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 999,
+    backgroundColor: Palette.greenDk, paddingHorizontal: 6, paddingVertical: 2, borderRadius: Radius.pill,
   },
   newPillTxt: { color: '#fff', fontSize: 9, fontFamily: Fonts.arabicBold },
 
   center: { padding: 40, alignItems: 'center' },
   empty: { padding: 40, textAlign: 'center', color: Palette.inkSoft, fontSize: 13, fontFamily: Fonts.arabic },
-  error: { padding: 24, textAlign: 'center', color: '#8a3e3e', fontSize: 13, fontFamily: Fonts.arabicMedium },
+  error: { padding: 24, textAlign: 'center', color: Palette.danger, fontSize: 13, fontFamily: Fonts.arabicMedium },
 });

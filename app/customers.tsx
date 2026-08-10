@@ -1,13 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { AccessDenied } from '@/components/AccessDenied';
+import { Tap } from '@/components/Tap';
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
-import { Fonts, Palette, arDigits } from '@/constants/theme';
+import { Fonts, Palette, Radius, arDigits } from '@/constants/theme';
 import { useCustomers } from '@/features/partners/partners.hooks';
 import { usePermissions } from '@/hooks/usePermissions';
 import type { Partner } from '@/lib/database.types';
@@ -20,7 +21,7 @@ function initialFor(name: string): string {
 
 function Row({ c, onPress }: { c: Partner; onPress: () => void }) {
   return (
-    <Pressable style={({ pressed }) => [styles.row, pressed && { opacity: 0.85 }]} onPress={onPress}>
+    <Tap style={styles.row} onPress={onPress}>
       <View style={styles.avatar}>
         <Text style={styles.avatarTxt}>{initialFor(c.partner_name)}</Text>
       </View>
@@ -33,7 +34,7 @@ function Row({ c, onPress }: { c: Partner; onPress: () => void }) {
           </View>
         ) : null}
       </View>
-    </Pressable>
+    </Tap>
   );
 }
 
@@ -97,11 +98,11 @@ export default function CustomersScreen() {
         />
       )}
 
-      <Pressable
-        style={({ pressed }) => [styles.fab, pressed && { opacity: 0.85 }]}
+      <Tap
+        style={styles.fab}
         onPress={() => router.push('/customers/new')}>
         <Ionicons name="add" size={26} color="#fff" />
-      </Pressable>
+      </Tap>
     </Screen>
   );
 }
@@ -110,18 +111,20 @@ const styles = StyleSheet.create({
   searchWrap: { paddingHorizontal: 22, paddingTop: 10, paddingBottom: 6 },
   search: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: '#fff', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10,
+    backgroundColor: '#fff', borderRadius: Radius.md, paddingHorizontal: 14, paddingVertical: 10,
+    borderWidth: 1, borderColor: Palette.line,
   },
   input: { flex: 1, fontSize: 13, color: Palette.ink, fontFamily: Fonts.arabic, textAlign: 'right', padding: 0 },
   count: { fontSize: 11, color: Palette.inkSoft, fontFamily: Fonts.arabicBold },
   listWrap: { paddingHorizontal: 22, paddingTop: 8, paddingBottom: 120 },
   row: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: Palette.surface, padding: 12, borderRadius: 16,
+    backgroundColor: Palette.surface, padding: 12, borderRadius: Radius.md,
+    borderWidth: 1, borderColor: Palette.line,
   },
   divider: { height: 8 },
   avatar: {
-    width: 44, height: 44, borderRadius: 22, backgroundColor: Palette.cardA,
+    width: 44, height: 44, borderRadius: Radius.pill, backgroundColor: Palette.cardA,
     alignItems: 'center', justifyContent: 'center',
   },
   avatarTxt: { color: Palette.greenDk, fontFamily: Fonts.arabicBold, fontSize: 18 },
@@ -132,12 +135,10 @@ const styles = StyleSheet.create({
   balanceLabel: { fontSize: 10, color: Palette.inkSoft, fontFamily: Fonts.arabic, marginTop: 1 },
   center: { padding: 40, alignItems: 'center' },
   empty: { padding: 40, textAlign: 'center', color: Palette.inkSoft, fontSize: 13, fontFamily: Fonts.arabic },
-  error: { padding: 24, textAlign: 'center', color: '#8a3e3e', fontSize: 12, fontFamily: Fonts.arabicMedium },
+  error: { padding: 24, textAlign: 'center', color: Palette.danger, fontSize: 12, fontFamily: Fonts.arabicMedium },
   fab: {
     position: 'absolute', bottom: 28, left: 22,
-    width: 56, height: 56, borderRadius: 28, backgroundColor: Palette.greenDk,
+    width: 56, height: 56, borderRadius: Radius.pill, backgroundColor: Palette.greenDk,
     alignItems: 'center', justifyContent: 'center',
-    shadowColor: '#1f3326', shadowOpacity: 0.25, shadowRadius: 8, shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
   },
 });

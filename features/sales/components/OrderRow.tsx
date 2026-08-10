@@ -1,9 +1,10 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { StatusPill } from '@/features/sales/components/StatusPill';
 import type { SalesOrder } from '@/lib/database.types';
 import { formatDate } from '@/lib/utils';
-import { Fonts, Palette, arDigits } from '@/constants/theme';
+import { Fonts, Palette, Radius, arDigits } from '@/constants/theme';
+import { Tap } from '@/components/Tap';
 
 const SHORT_ID_LEN = 6;
 
@@ -17,7 +18,7 @@ export function OrderRow({ order, onPress }: { order: SalesOrder; onPress?: () =
   const shortId = order.id.slice(0, SHORT_ID_LEN);
 
   return (
-    <Pressable style={({ pressed }) => [styles.row, pressed && { opacity: 0.85 }]} onPress={onPress}>
+    <Tap style={styles.row} onPress={onPress}>
       <View style={styles.thumb}>
         <Text style={styles.thumbTxt}>{initial}</Text>
       </View>
@@ -33,14 +34,14 @@ export function OrderRow({ order, onPress }: { order: SalesOrder; onPress?: () =
           <StatusPill status={order.status} />
         </View>
       </View>
-    </Pressable>
+    </Tap>
   );
 }
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 },
   thumb: {
-    width: 44, height: 44, borderRadius: 12, backgroundColor: Palette.cardA,
+    width: 44, height: 44, borderRadius: Radius.sm, backgroundColor: Palette.cardA,
     alignItems: 'center', justifyContent: 'center',
   },
   thumbTxt: { color: Palette.greenDk, fontFamily: Fonts.arabicBold, fontSize: 16 },

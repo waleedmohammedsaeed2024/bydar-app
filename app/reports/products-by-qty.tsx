@@ -5,7 +5,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-nat
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { useSalesOrdersWithLines } from '@/features/sales/sales.hooks';
-import { Fonts, Palette, arDigits } from '@/constants/theme';
+import { Fonts, Palette, Radius, arDigits } from '@/constants/theme';
 type Agg = {
   key: string;
   itemName: string;
@@ -89,17 +89,17 @@ export default function ProductsByQtyReport() {
 
 const styles = StyleSheet.create({
   summary: {
-    flexDirection: 'row', backgroundColor: Palette.greenDk, borderRadius: 18, padding: 6, marginBottom: 14,
+    flexDirection: 'row', backgroundColor: Palette.greenDk, borderRadius: Radius.lg, padding: 6, marginBottom: 14,
   },
   stat: { flex: 1, paddingVertical: 12, alignItems: 'center', gap: 4 },
   statBorder: { borderLeftWidth: 1, borderLeftColor: 'rgba(255,255,255,0.14)' },
   statValue: { fontSize: 18, color: '#fff', fontFamily: Fonts.arabicBold, letterSpacing: -0.3 },
   statLabel: { fontSize: 10, color: 'rgba(255,255,255,0.78)', fontFamily: Fonts.arabicMedium },
-  list: { backgroundColor: Palette.surface, borderRadius: 20, overflow: 'hidden' },
+  list: { backgroundColor: Palette.surface, borderRadius: Radius.lg, overflow: 'hidden', borderWidth: 1, borderColor: Palette.line },
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, padding: 14 },
-  rowDivider: { borderTopWidth: 1, borderTopColor: Palette.lineStrong },
+  rowDivider: { borderTopWidth: 1, borderTopColor: Palette.line },
   iconWrap: {
-    width: 38, height: 38, borderRadius: 12, backgroundColor: Palette.cardA,
+    width: 38, height: 38, borderRadius: Radius.sm, backgroundColor: Palette.cardA,
     alignItems: 'center', justifyContent: 'center',
   },
   name: { fontSize: 14, color: Palette.ink, fontFamily: Fonts.arabicBold, letterSpacing: -0.2 },
@@ -111,6 +111,6 @@ const styles = StyleSheet.create({
   qty: { fontSize: 14, color: Palette.ink, fontFamily: Fonts.arabicBold },
   value: { fontSize: 11, color: Palette.inkSoft, fontFamily: Fonts.arabicMedium },
   empty: { padding: 40, textAlign: 'center', color: Palette.inkSoft, fontFamily: Fonts.arabic },
-  error: { padding: 24, textAlign: 'center', color: '#8a3e3e', fontSize: 12, fontFamily: Fonts.arabicMedium },
+  error: { padding: 24, textAlign: 'center', color: Palette.danger, fontSize: 12, fontFamily: Fonts.arabicMedium },
   center: { padding: 40, alignItems: 'center' },
 });

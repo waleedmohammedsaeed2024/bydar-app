@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { TAB_BAR_CONTENT_HEIGHT } from "@/hooks/useTabBarHeight";
 
-import { Fonts, Palette } from "@/constants/theme";
+import { Fonts, Palette, Radius, Space } from "@/constants/theme";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useAuthStore } from "@/stores/auth";
 
@@ -57,23 +57,20 @@ export default function TabLayout() {
           right: 0,
           bottom: 0,
           height: TAB_BAR_CONTENT_HEIGHT + bottomPad,
-          borderTopLeftRadius: 22,
-          borderTopRightRadius: 22,
-          backgroundColor: "rgba(255,255,255,0.98)",
-          borderTopWidth: 0,
-          paddingTop: 8,
+          borderTopLeftRadius: Radius.lg,
+          borderTopRightRadius: Radius.lg,
+          backgroundColor: Palette.white,
+          // Flat: a hairline reads as the bar's edge instead of a cast shadow.
+          borderTopWidth: 1,
+          borderTopColor: Palette.line,
+          paddingTop: Space.sm,
           paddingBottom: bottomPad,
-          paddingHorizontal: 16,
-          shadowColor: "#1f3326",
-          shadowOpacity: 0.12,
-          shadowRadius: 18,
-          shadowOffset: { width: 0, height: -4 },
-          elevation: 12,
+          paddingHorizontal: Space.lg,
         },
         tabBarIconStyle: { marginBottom: -4 },
         tabBarItemStyle: {
-          borderRadius: 999, marginHorizontal: 3, height: 52, overflow: 'hidden',
-          paddingVertical: 4,
+          borderRadius: Radius.pill, marginHorizontal: 3, height: 52, overflow: 'hidden',
+          paddingVertical: Space.xs,
         },
         tabBarActiveBackgroundColor: Palette.greenDk,
       }}
